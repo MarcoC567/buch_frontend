@@ -1,0 +1,36 @@
+@startuml
+skinparam backgroundColor #f9f9f9
+skinparam state {
+    BackgroundColor White
+    BorderColor Black
+    FontColor Black
+}
+
+[*] --> HomePage : Start
+
+HomePage --> LoginSite : "Login"
+HomePage --> Suchen : "Suchen"
+
+state LoginSite {
+    [*] --> AnmeldeFormular : "Login-Eingabe"
+    state entscheidung <<choice>>
+    AnmeldeFormular --> entscheidung :"einloggen"
+    entscheidung --> AnmeldeFormular : "Login fehlgeschlagen"
+    entscheidung --> Angemeldet : "Login efolgreich"
+}
+
+Angemeldet --> BuchAnlegen : "Hinzufügen"
+BuchAnlegen --> HomePage : "erfolgreich angelegt"
+Angemeldet --> Suchen : "Suchen"
+
+state Suchen {
+    [*] --> Suchformular : "Suchkriterien"
+    state bedingung <<choice>>
+    Suchformular --> Ergebnisse : "Suchen"
+    Ergebnisse --> bedingung : "Bearbeiten auswählen"
+    bedingung --> Ergebnisse : "Nicht Angemeldet"
+}
+bedingung --> Bearbeiten : "Angemeldet"
+Ergebnisse --> Details : "Details auswählen"
+
+@enduml
