@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "bootstrap": "5.3.3",
+    "framer-motion": "11.11.17",
     "next": "15.0.2",
     "react": "18.2.0",
     "react-bootstrap": "2.10.5",
