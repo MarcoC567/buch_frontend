@@ -1,4 +1,4 @@
-@startuml
+@startuml Bookstore
 skinparam backgroundColor #f9f9f9
 skinparam state {
     BackgroundColor White
@@ -6,10 +6,12 @@ skinparam state {
     FontColor Black
 }
 
+state App {
 [*] --> HomePage : Start
 
 HomePage --> LoginSite : "Login"
 HomePage --> Suchen : "Suchen"
+HomePage --> Details : "Anzeigen"
 
 state LoginSite {
     [*] --> AnmeldeFormular : "Login-Eingabe"
@@ -28,9 +30,11 @@ state Suchen {
     state bedingung <<choice>>
     Suchformular --> Ergebnisse : "Suchen"
     Ergebnisse --> bedingung : "Bearbeiten auswählen"
+    Ergebnisse --> bedingung : "Löschen auswählen"
     bedingung --> Ergebnisse : "Nicht Angemeldet"
 }
 bedingung --> Bearbeiten : "Angemeldet"
+bedingung --> Löschen : "Angemeldet"
 Ergebnisse --> Details : "Details auswählen"
-
+}
 @enduml
