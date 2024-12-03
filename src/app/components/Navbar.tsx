@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "react-bootstrap";
 
-export const Navbar = () => {
+ const Navbar = () => {
   const [activeLink, setActiveLink] = useState("#");
 
   const handleLinkClick = (tabName: string) => setActiveLink(tabName);
@@ -12,7 +12,7 @@ export const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
-        <Link className="navbar-brand"href="#" passHref>
+        <Link className="navbar-brand"href="/" passHref>
           <Image
             src="/book.svg"
             alt="Book Icon"
@@ -36,9 +36,11 @@ export const Navbar = () => {
               </a>
             </li>
           </ul>
-          <Button className="ms-auto mx-4" href="Login">Login</Button>
+          <Button className="ms-auto mx-4" href="login">Login</Button>
         </div>
       </div>
     </nav>
   );
 };
+
+export default Navbar;
