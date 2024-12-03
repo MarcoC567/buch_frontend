@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Navbar from './components/Navbar';
+import { AuthProvider } from "./auth/AuthProvider";
 
 
 const geistSans = localFont({
@@ -26,10 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <AuthProvider>
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <Navbar></Navbar>
         {children}
       </body>
     </html>
+    </AuthProvider>
   );
 }
