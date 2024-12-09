@@ -1,6 +1,6 @@
 "use client"
 import { Alert, Badge, Button } from "react-bootstrap";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../api/auth/useAuth";
 import { useState } from "react";
 import {useRouter} from "next/navigation";
 
