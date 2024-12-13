@@ -26,7 +26,7 @@ import { Button } from "react-bootstrap";
           <ul className="nav nav-pills">
             <li className="nav-item">
               <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
-              aria-current="page" href="#" onClick={() => handleLinkClick("Suchen")}>
+              aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
                 Suchen
               </a>
             </li>

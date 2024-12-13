@@ -1,9 +1,11 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button, Form, Table, Alert } from "react-bootstrap";
 import { useAuth } from "../api/auth/useAuth";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import App from "next/app";
 
 interface BuchDatas {
   //id : number,
@@ -34,7 +36,7 @@ const BookSearchPage = () => {
   const [searchError, setSearchError] = useState(false);
   const [showTable, setShowTable] = useState(false);
   const { login } = useAuth(); //TODO war const {cToken} = useAuth();
-  const router : AppRouterInstance = useRouter();
+  const router = useRouter();
 
   const getIdFromLinks = (_links) => {
     if (_links?.self?.href) {
