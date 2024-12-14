@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Form, Table, Alert } from "react-bootstrap";
-import { InfoCircle } from "react-bootstrap-icons";
+import { InfoCircle, Pen } from "react-bootstrap-icons";
 
 interface Book {
   id: number;
@@ -321,26 +321,26 @@ const BookSearchPage = () => {
               <td>{book.title}</td>
               <td>{book.art}</td>
               <td>
-                <Button
-                  variant="primary"
-                  onClick={() => fetchBookDetails(book.id.toString())}
-                >
-                  Details
+                <Button>
+                  <InfoCircle>
+                    <li className="nav-item">
+                      <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
+                      aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
+                        Suchen
+                      </a>
+                    </li>
+                  </InfoCircle>
                 </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => fetchBookDetails(book.id.toString())}
-                >
-                  Bearbeiten
+                <Button>
+                  <Pen>
+                    <li className="nav-item">
+                      <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
+                      aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
+                        Suchen
+                      </a>
+                    </li>
+                  </Pen>
                 </Button>
-                <InfoCircle>
-                  <li className="nav-item">
-                    <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
-                    aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
-                      Suchen
-                    </a>
-                  </li>
-                </InfoCircle>
               </td>
             </tr>
           ))}
