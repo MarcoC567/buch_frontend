@@ -1,8 +1,12 @@
 "use client";
 
+// Run:
+// npm install react-bootstrap-icons
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Form, Table, Alert } from "react-bootstrap";
+import { InfoCircle } from "react-bootstrap-icons";
 
 interface Book {
   id: number;
@@ -37,6 +41,10 @@ const BookSearchPage = () => {
   const [isTypeScript, setIsTypeScript] = useState(false);
   const [selectedBookFormat, setSelectedBookFormat] = useState("");
   const [error, setError] = useState(false);
+
+  // 
+  const [activeLink, setActiveLink] = useState("#");
+  const handleLinkClick = (tabName: string) => setActiveLink(tabName);
 
   // Fetch all books (id, version, title, and type)
   const fetchAllBooks = async () => {
@@ -312,6 +320,28 @@ const BookSearchPage = () => {
               <td>{book.version}</td>
               <td>{book.title}</td>
               <td>{book.art}</td>
+              <td>
+                <Button
+                  variant="primary"
+                  onClick={() => fetchBookDetails(book.id.toString())}
+                >
+                  Details
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => fetchBookDetails(book.id.toString())}
+                >
+                  Bearbeiten
+                </Button>
+                <InfoCircle>
+                  <li className="nav-item">
+                    <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
+                    aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
+                      Suchen
+                    </a>
+                  </li>
+                </InfoCircle>
+              </td>
             </tr>
           ))}
         </tbody>
