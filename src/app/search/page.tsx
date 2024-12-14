@@ -321,22 +321,22 @@ const BookSearchPage = () => {
               <td>{book.title}</td>
               <td>{book.art}</td>
               <td>
+
                 <Button>
                   <InfoCircle>
-                    <li className="nav-item">
-                      <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
-                      aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
-                        Suchen
+                    <li className="search-item">
+                      <a  className={`search-link ${activeLink === "Suchen" ? "active" : ""}`} 
+                      aria-current="page" href="details" onClick={() => handleLinkClick("Details")}>
+                        Details
                       </a>
                     </li>
                   </InfoCircle>
                 </Button>
                 <Button>
                   <Pen>
-                    <li className="nav-item">
-                      <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
-                      aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
-                        Suchen
+                    <li className="search-item">
+                      <a className={`search-link ${activeLink === "Hinzufügen" ? "active" : ""}`} href="edit" onClick={() => handleLinkClick("Bearbeiten")}>
+                        Bearbeiten
                       </a>
                     </li>
                   </Pen>
