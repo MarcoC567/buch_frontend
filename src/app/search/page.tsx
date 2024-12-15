@@ -335,7 +335,6 @@ const BookSearchPage = () => {
               <td>{buch.titel}</td>
               <td>{renderStars(buch.rating)}</td> {/* Sterne-Darstellung */}
               <td>
-                {/* InfoCircle führt zu Details-Ansicht */}
                 <Link href={`/details/${buch.id}`} passHref>
                   <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
                 </Link>
