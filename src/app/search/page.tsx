@@ -2,9 +2,8 @@
 
 // Run:
 // npm install react-bootstrap-icons
-// TODO: Bei Suche nach Büchern die lieferbar/ nicht lieferbar sind suchen 
-// TODO: Suche nach Buchformaten funktioniert noch nicht
-// TODO: Suche nach JavaScript oder TypeScript funktioniert noch nicht
+// TODO: Nur wenn eingeloggt, soll die Bearbeiten-Funktion sichtbar sein
+// TODO: Titel Type
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -14,17 +13,19 @@ import Link from "next/link";
 
 interface Buch {
   id: number;
+  isbn: string;
   version: number;
-  rating: string;
+  rating: number;
   titel: string;
   art: string;
+  lieferbar: boolean;
   schlagwoerter: string[];
 }
 
 interface BookDetails {
   isbn: string;
   version: number;
-  rating?: string;
+  rating?: number;
   art: string;
   preis: number;
   lieferbar: boolean;
@@ -35,6 +36,7 @@ interface BookDetails {
   rabatt: string;
 }
 
+
 const BookSearchPage = () => {
   const [buecher, setBuecher] = useState<Buch[]>([]); // Liste aller Bücher
   const [buchDetails, setBuchDetails] = useState<BookDetails | null>(null); // Details eines Buches
@@ -44,11 +46,9 @@ const BookSearchPage = () => {
   const [isJavaScript, setIsJavaScript] = useState(false);
   const [isTypeScript, setIsTypeScript] = useState(false);
   const [selectedBuchArt, setSelectedBuchArt] = useState("");
+  const [isLieferbar, setIsLieferbar] = useState(false);
   const [error, setError] = useState(false);
 
-  // 
-  const [activeLink, setActiveLink] = useState("#");
-  const handleLinkClick = (tabName: string) => setActiveLink(tabName);
 
   // Fetch all buecher (id, version, titel, and type)
   const fetchAllBooks = async () => {
@@ -60,57 +60,14 @@ const BookSearchPage = () => {
             query {
               buecher {
                 id
-                version
-                rating
-                art
-                titel {
-                  titel
-                }
-              }
-            }
-          `,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      const fetchedBooks = response.data.data.buecher.map((buch: any) => ({
-        id: buch.id,
-        version: buch.version,
-        rating: buch.rating,
-        titel: buch.titel.titel,
-        art: buch.art,
-      }));
-      setBuecher(fetchedBooks);
-    } catch (err) {
-      console.error("Error fetching buecher:", err);
-      setError(true);
-    }
-  };
-
-  // Fetch details of a single book by ID
-  const fetchBookDetails = async (id: string) => {
-    try {
-      const response = await axios.post(
-        "https://localhost:3000/graphql",
-        {
-          query: `
-            query {
-              buch(id: ${id}) {
                 isbn
-                version
                 rating
                 art
-                preis
                 lieferbar
-                datum
-                homepage
                 schlagwoerter
                 titel {
                   titel
                 }
-                rabatt
               }
             }
           `,
@@ -119,24 +76,19 @@ const BookSearchPage = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
-      const details = response.data.data.buch;
-      setBuchDetails({
-        isbn: details.isbn,
-        version: details.version,
-        rating: details.rating,
-        art: details.art,
-        preis: details.preis,
-        lieferbar: details.lieferbar,
-        datum: details.datum,
-        homepage: details.homepage,
-        schlagwoerter: details.schlagwoerter,
-        titel: details.titel.titel,
-        rabatt: details.rabatt,
-      });
-      setError(false);
+  
+      const fetchedBooks = response.data.data.buecher.map((buch: Buch) => ({
+        id: buch.id,
+        isbn: buch.isbn,
+        rating: buch.rating,
+        titel: buch.titel.titel,  // This needs to be changed
+        art: buch.art,
+        lieferbar: buch.lieferbar,
+        schlagwoerter: buch.schlagwoerter || [],
+      }));      
+      setBuecher(fetchedBooks);
     } catch (err) {
-      console.error("Error fetching book details:", err);
+      console.error("Error fetching buecher:", err);
       setError(true);
     }
   };
@@ -149,42 +101,65 @@ const BookSearchPage = () => {
     setIsJavaScript(false);
     setIsTypeScript(false);
     setSelectedBuchArt("");
+    setIsLieferbar(false);
     setBuchDetails(null);
     setError(false);
     fetchAllBooks();
   };
 
-  // Handle search by ID or Title
+  // Handle search
   const handleSearch = () => {
+    let filteredBooks = [...buecher]; // Kopie der Bücherliste
+  
+    // ISBN-Filter
     if (sucheISBN) {
-      fetchBookDetails(sucheISBN);
-    } else if (sucheTitel) {
-      const filteredBooks = buecher.filter((book) =>
-        book.titel.toLowerCase().includes(sucheTitel.toLowerCase())
+      filteredBooks = filteredBooks.filter((book) =>
+        book.isbn.includes(sucheISBN) // ISBN kann als String oder Zahl vorliegen
       );
-      if (filteredBooks.length > 0) {
-        setBuecher(filteredBooks);
-        setError(false);
-      } else {
-        setError(true);
-      }
-    } else if (selectedRatingOption) {
-      const selectedRating = parseInt(selectedRatingOption, 10); // String zu Zahl
-      const filteredBooks = buecher.filter((book) => book.rating === selectedRating);
-      setBuecher(filteredBooks);
-      setError(filteredBooks.length === 0);
-    } else if (selectedBuchArt) {
-      const filteredBooks = buecher.filter((book) => {
-        // Prüfe, ob 'art' definiert ist, bevor auf 'includes' zugegriffen wird
-        const bookType = book.art?.toLowerCase();
-        if (isJavaScript && bookType === "javascript") return true;
-        if (isTypeScript && bookType === "typescript") return true;
-        return false;
+    }
+  
+    // Titel-Filter
+    if (sucheTitel) {
+      filteredBooks = filteredBooks.filter((book) =>
+        book.titel.toLowerCase().includes(sucheTitel.toLowerCase()) // Titel vergleichen
+      );
+    }
+
+    // Rating-Filter
+    if (selectedRatingOption) {
+      const selectedRating = Number(selectedRatingOption);  // Convert to number directly
+      filteredBooks = filteredBooks.filter(
+        (book) => book.rating === selectedRating
+      );
+    }
+
+    // JavaScript/TypeScript-Filter
+    if (isJavaScript || isTypeScript) {
+      filteredBooks = filteredBooks.filter((book) => {
+        const lowerCaseSchlagwoerter = book.schlagwoerter.map((tag) => tag.toLowerCase());
+        return (
+          (isJavaScript && lowerCaseSchlagwoerter.includes("javascript")) ||
+          (isTypeScript && lowerCaseSchlagwoerter.includes("typescript"))
+        );
       });
-      setBuecher(filteredBooks);
-      setError(filteredBooks.length === 0);
-    } 
+    }
+
+    // Buchformat-Filter (auf Grundlage von 'art')
+    if (selectedBuchArt) {
+      filteredBooks = filteredBooks.filter((book) => book.art === selectedBuchArt); // Werte wie "EPUB", "HARDCOVER"
+    }
+
+    // Lieferbarkeit-Filter
+    if (isLieferbar) {
+      filteredBooks = filteredBooks.filter((book) => book.lieferbar); // Einfacher Wahrheitswert-Check
+    }
+
+    // Fehlerstatus setzen, wenn keine Bücher gefunden werden
+    setBuecher(filteredBooks);
+    setError(filteredBooks.length === 0);
   };
+  
+  
 
   // Trigger search with Enter key
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -197,6 +172,27 @@ const BookSearchPage = () => {
   useEffect(() => {
     fetchAllBooks();
   }, []);
+
+  // Funktion zur Anzeige von Sternen
+  const renderStars = (rating: string) => {
+    const ratingValue = parseFloat(rating);
+    const fullStars = Math.floor(ratingValue);
+    const hasHalfStar = ratingValue % 1 !== 0;
+
+    // Erstelle Sterne als Array
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push("★"); // Voller Stern
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push("☆"); // Halber Stern
+      } else {
+        stars.push("☆"); // Leer Stern
+      }
+    }
+
+    return stars.join(" "); // Sterne als String zurückgeben
+  };
 
   return (
     <div className="container mt-5">
@@ -255,20 +251,37 @@ const BookSearchPage = () => {
             <Form.Check
               type="radio"
               name="bookFormat"
-              label="Druckausgabe"
-              value="DRUCKAUSGABE"
-              checked={selectedBuchArt === "DRUCKAUSGABE"}
+              label="EPUB"
+              value="EPUB"
+              checked={selectedBuchArt === "EPUB"} // Vorher: Falsche Werte
               onChange={(e) => setSelectedBuchArt(e.target.value)}
             />
             <Form.Check
               type="radio"
               name="bookFormat"
-              label="Kindle"
-              value="KINDLE"
-              checked={selectedBuchArt === "KINDLE"}
+              label="Hardcover"
+              value="HARDCOVER"
+              checked={selectedBuchArt === "HARDCOVER"} // Vorher: Falsche Werte
+              onChange={(e) => setSelectedBuchArt(e.target.value)}
+            />
+            <Form.Check
+              type="radio"
+              name="bookFormat"
+              label="Paperback"
+              value="PAPERBACK"
+              checked={selectedBuchArt === "PAPERBACK"} // Vorher: Falsche Werte
               onChange={(e) => setSelectedBuchArt(e.target.value)}
             />
           </div>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Lieferbarkeit</Form.Label>
+              <Form.Check
+                type="checkbox"
+                label="Nur lieferbare Bücher"
+                checked={isLieferbar}  // Verknüpfung des Zustands
+                onChange={(e) => setIsLieferbar(e.target.checked)}  // Zustand beim Ändern des Kontrollkästchens setzen
+              />
         </Form.Group>
         <Button variant="primary" onClick={handleSearch} className="me-2">
           Suchen
@@ -308,9 +321,9 @@ const BookSearchPage = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Version</th>
+            <th>ISBN</th>
             <th>Titel</th>
-            <th>Art</th>
+            <th>Rating</th>
             <th>Aktionen</th>
           </tr>
         </thead>
@@ -318,9 +331,9 @@ const BookSearchPage = () => {
           {buecher.map((buch) => (
             <tr key={buch.id}>
               <td>{buch.id}</td>
-              <td>{buch.version}</td>
+              <td>{buch.isbn}</td> {/* ISBN bleibt */}
               <td>{buch.titel}</td>
-              <td>{buch.art}</td>
+              <td>{renderStars(buch.rating)}</td> {/* Sterne-Darstellung */}
               <td>
                 {/* InfoCircle führt zu Details-Ansicht */}
                 <Link href={`/details/${buch.id}`} passHref>
@@ -335,7 +348,6 @@ const BookSearchPage = () => {
           ))}
         </tbody>
       </Table>
-
     </div>
   );
 };
