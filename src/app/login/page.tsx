@@ -2,7 +2,7 @@
 import { Alert, Badge, Button } from "react-bootstrap";
 import { useAuth } from "../api/auth/useAuth";
 import { useState } from "react";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 
 const Login = () => {

@@ -26,8 +26,8 @@ const Navbar = () => {
         <div className="d-flex w-100 align-items-center">
           <ul className="nav nav-pills">
             <li className="nav-item">
-              <a className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`}
-                 aria-current="page" href="#" onClick={() => handleLinkClick("Suchen")}>
+              <a  className={`nav-link ${activeLink === "Suchen" ? "active" : ""}`} 
+              aria-current="page" href="search" onClick={() => handleLinkClick("Suchen")}>
                 Suchen
               </a>
             </li>
