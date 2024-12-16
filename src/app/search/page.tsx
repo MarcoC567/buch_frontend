@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../api/auth/useAuth";
 import { Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen } from "react-bootstrap-icons";
 import Link from "next/link";
@@ -15,17 +16,17 @@ interface Buch {
   id: number;
   isbn: string;
   version: number;
-  rating: number;
-  titel: string;
+  rating: string;
+  titel: { titel: string };
   art: string;
   lieferbar: boolean;
   schlagwoerter: string[];
 }
 
-interface BookDetails {
+interface BuchDetails {
   isbn: string;
   version: number;
-  rating?: number;
+  rating?: string;
   art: string;
   preis: number;
   lieferbar: boolean;
@@ -38,8 +39,9 @@ interface BookDetails {
 
 
 const BookSearchPage = () => {
+  const { isLoggedIn } = useAuth();
   const [buecher, setBuecher] = useState<Buch[]>([]); // Liste aller Bücher
-  const [buchDetails, setBuchDetails] = useState<BookDetails | null>(null); // Details eines Buches
+  const [buchDetails, setBuchDetails] = useState<BuchDetails | null>(null); // Details eines Buches
   const [sucheISBN, setSucheISBN] = useState<string>(""); // ID für die Buchsuche
   const [sucheTitel, setSucheTitel] = useState<string>(""); // Titel für die Buchsuche
   const [selectedRatingOption, setSelectedRatingOption] = useState("");
@@ -81,7 +83,7 @@ const BookSearchPage = () => {
         id: buch.id,
         isbn: buch.isbn,
         rating: buch.rating,
-        titel: buch.titel.titel,  // This needs to be changed
+        titel: buch.titel.titel,
         art: buch.art,
         lieferbar: buch.lieferbar,
         schlagwoerter: buch.schlagwoerter || [],
@@ -121,7 +123,7 @@ const BookSearchPage = () => {
     // Titel-Filter
     if (sucheTitel) {
       filteredBooks = filteredBooks.filter((book) =>
-        book.titel.toLowerCase().includes(sucheTitel.toLowerCase()) // Titel vergleichen
+        book.titel.titel.toLowerCase().includes(sucheTitel.toLowerCase()) // Titel vergleichen
       );
     }
 
@@ -129,7 +131,7 @@ const BookSearchPage = () => {
     if (selectedRatingOption) {
       const selectedRating = Number(selectedRatingOption);  // Convert to number directly
       filteredBooks = filteredBooks.filter(
-        (book) => book.rating === selectedRating
+        (book) => Number(book.rating) === selectedRating
       );
     }
 
@@ -232,18 +234,22 @@ const BookSearchPage = () => {
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>JavaScript oder TypeScript</Form.Label>
-          <Form.Check
-            type="checkbox"
-            label="JavaScript"
-            checked={isJavaScript}
-            onChange={(e) => setIsJavaScript(e.target.checked)}
-          />
-          <Form.Check
-            type="checkbox"
-            label="TypeScript"
-            checked={isTypeScript}
-            onChange={(e) => setIsTypeScript(e.target.checked)}
-          />
+          <div>
+            <Form.Check
+              type="checkbox"
+              label={<label htmlFor="javascript-checkbox">JavaScript</label>}
+              id="javascript-checkbox"
+              checked={isJavaScript}
+              onChange={(e) => setIsJavaScript(e.target.checked)}
+            />
+            <Form.Check
+              type="checkbox"
+              label={<label htmlFor="typescript-checkbox">TypeScript</label>}
+              id="typescript-checkbox"
+              checked={isTypeScript}
+              onChange={(e) => setIsTypeScript(e.target.checked)}
+            />
+          </div>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Buchformat</Form.Label>
@@ -251,37 +257,43 @@ const BookSearchPage = () => {
             <Form.Check
               type="radio"
               name="bookFormat"
-              label="EPUB"
+              label={<label htmlFor="epub-format">EPUB</label>}
               value="EPUB"
-              checked={selectedBuchArt === "EPUB"} // Vorher: Falsche Werte
+              id="epub-format"
+              checked={selectedBuchArt === "EPUB"}
               onChange={(e) => setSelectedBuchArt(e.target.value)}
             />
             <Form.Check
               type="radio"
               name="bookFormat"
-              label="Hardcover"
+              label={<label htmlFor="hardcover-format">Hardcover</label>}
               value="HARDCOVER"
-              checked={selectedBuchArt === "HARDCOVER"} // Vorher: Falsche Werte
+              id="hardcover-format"
+              checked={selectedBuchArt === "HARDCOVER"}
               onChange={(e) => setSelectedBuchArt(e.target.value)}
             />
             <Form.Check
               type="radio"
               name="bookFormat"
-              label="Paperback"
+              label={<label htmlFor="paperback-format">Paperback</label>}
               value="PAPERBACK"
-              checked={selectedBuchArt === "PAPERBACK"} // Vorher: Falsche Werte
+              id="paperback-format"
+              checked={selectedBuchArt === "PAPERBACK"}
               onChange={(e) => setSelectedBuchArt(e.target.value)}
             />
           </div>
         </Form.Group>
         <Form.Group className="mb-3">
           <Form.Label>Lieferbarkeit</Form.Label>
-              <Form.Check
-                type="checkbox"
-                label="Nur lieferbare Bücher"
-                checked={isLieferbar}  // Verknüpfung des Zustands
-                onChange={(e) => setIsLieferbar(e.target.checked)}  // Zustand beim Ändern des Kontrollkästchens setzen
-              />
+          <div>
+            <Form.Check
+              type="checkbox"
+              label={<label htmlFor="lieferbar-checkbox">Nur lieferbare Bücher</label>}
+              id="lieferbar-checkbox"
+              checked={isLieferbar}
+              onChange={(e) => setIsLieferbar(e.target.checked)}
+            />
+          </div>
         </Form.Group>
         <Button variant="primary" onClick={handleSearch} className="me-2">
           Suchen
@@ -331,17 +343,20 @@ const BookSearchPage = () => {
           {buecher.map((buch) => (
             <tr key={buch.id}>
               <td>{buch.id}</td>
-              <td>{buch.isbn}</td> {/* ISBN bleibt */}
+              <td>{buch.isbn}</td>
               <td>{buch.titel}</td>
-              <td>{renderStars(buch.rating)}</td> {/* Sterne-Darstellung */}
+              <td>{renderStars(buch.rating)}</td>
               <td>
+                {/* InfoCircle immer anzeigen */}
                 <Link href={`/details/${buch.id}`} passHref>
                   <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
                 </Link>
-                {/* Pen führt zur Bearbeiten-Ansicht */}
-                <Link href={`/details/${buch.id}/edit`} passHref>
-                  <Pen style={{ cursor: "pointer" }} />
-                </Link>
+                {/* Pen nur anzeigen, wenn eingeloggt */}
+                {isLoggedIn() && (
+                  <Link href={`/details/${buch.id}/edit`} passHref>
+                    <Pen style={{ cursor: "pointer" }} />
+                  </Link>
+                )}
               </td>
             </tr>
           ))}

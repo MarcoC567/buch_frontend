@@ -9,7 +9,7 @@ const Navbar = () => {
   const [activeLink, setActiveLink] = useState("#");
 
   const handleLinkClick = (tabName: string) => setActiveLink(tabName);
-
+  
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container-fluid">
