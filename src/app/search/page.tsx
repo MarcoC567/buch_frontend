@@ -8,7 +8,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
-import { Button, Form, Table, Alert } from "react-bootstrap";
+import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen } from "react-bootstrap-icons";
 import Link from "next/link";
 
@@ -200,8 +200,8 @@ const BookSearchPage = () => {
     <div className="container mt-5">
       <h1>Buchsuche</h1>
       <Form>
-        <Form.Group className="mb-3">
-          <Form.Label>ISBN</Form.Label>
+        <Form.Group className="mb-4">
+          <Badge className="mb-3">ISBN</Badge>
           <Form.Control
             type="text"
             placeholder="ISBN des gesuchten Buchs"
@@ -211,7 +211,7 @@ const BookSearchPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Titel</Form.Label>
+          <Badge className="mb-3">Titel</Badge>
           <Form.Control
             type="text"
             placeholder="Titel des gesuchten Buchs"
@@ -221,7 +221,7 @@ const BookSearchPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Rating</Form.Label>
+          <Badge className="mb-3">Rating</Badge>
           <Form.Select
             value={selectedRatingOption}
             onChange={(e) => setSelectedRatingOption(e.target.value)}
@@ -233,7 +233,7 @@ const BookSearchPage = () => {
           </Form.Select>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>JavaScript oder TypeScript</Form.Label>
+          <Badge className="mb-3">JavaScript oder TypeScript</Badge>
           <div>
             <Form.Check
               type="checkbox"
@@ -252,7 +252,7 @@ const BookSearchPage = () => {
           </div>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Buchformat</Form.Label>
+          <Badge className="mb-3">Buchformat</Badge>
           <div>
             <Form.Check
               type="radio"
@@ -283,8 +283,8 @@ const BookSearchPage = () => {
             />
           </div>
         </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>Lieferbarkeit</Form.Label>
+        <Form.Group className="mb-">
+          <Badge className="mb-3">Lieferbarkeit</Badge>
           <div>
             <Form.Check
               type="checkbox"
@@ -295,12 +295,14 @@ const BookSearchPage = () => {
             />
           </div>
         </Form.Group>
-        <Button variant="primary" onClick={handleSearch} className="me-2">
-          Suchen
-        </Button>
-        <Button variant="secondary" onClick={resetFilters}>
-          Zurücksetzen
-        </Button>
+        <div className="mt-4">
+          <Button variant="primary" onClick={handleSearch} className="me-2">
+            Suchen
+          </Button>
+          <Button variant="secondary" onClick={resetFilters}>
+            Zurücksetzen
+          </Button>
+        </div>
       </Form>
 
       {error && (
