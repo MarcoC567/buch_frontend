@@ -38,6 +38,7 @@ const Homepage: React.FC = () => {
   // Fetch data from the backend
   const fetchCards = async () => {
     try {
+
       const response = await axios.post(
         "https://localhost:3000/graphql",
         {
