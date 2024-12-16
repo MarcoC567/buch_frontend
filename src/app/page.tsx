@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface CardData {
+  id: string;
   preis: number;
   title: string;
   rating: string;
@@ -11,6 +13,7 @@ interface CardData {
 }
 
 interface BuchResponse {
+  id: string,
   preis: number;
   art: string;
   rating?: string;
@@ -23,6 +26,14 @@ const Homepage: React.FC = () => {
   const [cards, setCards] = useState<CardData[]>([]);
   const [visibleCards, setVisibleCards] = useState<CardData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const router = useRouter();
+
+  const moveToDetails = (id: string) => {
+    if(!id){
+      console.error("ID is missing");
+    }
+    router.push(`/details?id=${id}`); // Navigiere zur Detail-Seite für das spezifische Buch
+  };
 
   // Fetch data from the backend
   const fetchCards = async () => {
@@ -33,6 +44,7 @@ const Homepage: React.FC = () => {
           query: `
             query {
               buecher {
+                id
                 preis
                 art
                 rating
@@ -52,6 +64,7 @@ const Homepage: React.FC = () => {
 
       const fetchedCards: CardData[] = response.data.data.buecher.map(
         (buch: BuchResponse) => ({
+          id: buch.id.toString(),
           preis: buch.preis,
           title: buch.titel.titel,
           rating: buch.rating || "No rating available",
@@ -126,7 +139,7 @@ const Homepage: React.FC = () => {
   }, [moveNext]);
 
   return (
-    <div style={{ marginTop: "100px", position: "relative", height: "auto" }}>
+    <div style={{ marginTop: "60px", position: "relative", height: "auto" }}>
       <div
         style={{
           display: "flex",
@@ -141,7 +154,7 @@ const Homepage: React.FC = () => {
         <div
           style={{
             display: "flex",
-            gap: "20px", // Abstand von 20px zwischen den Karten
+            gap: "15px", // Abstand von 20px zwischen den Karten
             width: "auto",
             transition: "transform 0.5s ease-in-out",
           }}
@@ -151,8 +164,8 @@ const Homepage: React.FC = () => {
             <div
               className="card"
               style={{
-                width: "400px",
-                height: "400px",
+                width: "350px",
+                height: "350px",
                 flexShrink: 0,
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                 borderRadius: "10px",
@@ -173,8 +186,8 @@ const Homepage: React.FC = () => {
                 height={100}
                 alt={card.title}
                 style={{
-                  width: "200px",
-                  height: "100px",
+                  width: "150px",
+                  height: "50px",
                   margin: "0 auto",
                 }}
               />
@@ -211,7 +224,7 @@ const Homepage: React.FC = () => {
                     <strong>Bewertung:</strong> {renderStars(card.rating)}
                   </p>
                 </div>
-                <a href="#" className="btn btn-primary my-3">
+                <a  className="btn btn-primary my-3" onClick={() => moveToDetails(card.id)}>
                   Details
                 </a>
               </div>
