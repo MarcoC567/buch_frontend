@@ -74,7 +74,7 @@ const Homepage: React.FC = () => {
       );
 
       setCards(fetchedCards);
-      setVisibleCards(fetchedCards.slice(0, 3)); // Zeigt die ersten 3 Karten an
+      setVisibleCards(fetchedCards.slice(0, 3));
     } catch (error) {
       console.error("Error fetching cards:", error);
     }
@@ -84,35 +84,35 @@ const Homepage: React.FC = () => {
     fetchCards();
   }, []);
 
-  // Funktion zur Anzeige von Sternen
+  
   const renderStars = (rating: string) => {
     const ratingValue = parseFloat(rating);
     const fullStars = Math.floor(ratingValue);
     const hasHalfStar = ratingValue % 1 !== 0;
 
-    // Erstelle Sterne als Array
+   
     const stars = [];
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push("★"); // Voller Stern
+        stars.push("★"); 
       } else if (i === fullStars && hasHalfStar) {
-        stars.push("☆"); // Halber Stern
+        stars.push("☆"); 
       } else {
-        stars.push("☆"); // Leer Stern
+        stars.push("☆"); 
       }
     }
 
-    return stars.join(" "); // Sterne als String zurückgeben
+    return stars.join(" "); 
   };
 
-  // Move the carousel forward
+  
   const moveNext = useCallback(() => {
     if (cards.length < 4) return;
 
     const nextIndex = (currentIndex + 1) % cards.length;
     const newVisibleCards = [
-      ...visibleCards.slice(1), // Entferne die linke Karte
-      cards[(currentIndex + 3) % cards.length], // Füge eine neue Karte von rechts hinzu
+      ...visibleCards.slice(1), 
+      cards[(currentIndex + 3) % cards.length], 
     ];
 
     setCurrentIndex(nextIndex);
@@ -124,8 +124,8 @@ const Homepage: React.FC = () => {
 
     const previousIndex = (currentIndex - 1 + cards.length) % cards.length;
     const newVisibleCards = [
-      cards[(previousIndex - 1 + cards.length) % cards.length], // Füge eine Karte links hinzu
-      ...visibleCards.slice(0, 2), // Entferne die rechte Karte
+      cards[(previousIndex - 1 + cards.length) % cards.length], 
+      ...visibleCards.slice(0, 2),
     ];
 
     setCurrentIndex(previousIndex);
@@ -151,16 +151,14 @@ const Homepage: React.FC = () => {
           position: "relative",
         }}
       >
-        {/* Container für die Karten */}
         <div
           style={{
             display: "flex",
-            gap: "15px", // Abstand von 20px zwischen den Karten
+            gap: "15px",
             width: "auto",
             transition: "transform 0.5s ease-in-out",
           }}
         >
-          {/* Karten */}
           {visibleCards.map((card, index) => (
             <div
               className="card"
@@ -173,9 +171,9 @@ const Homepage: React.FC = () => {
                 overflow: "hidden",
                 textAlign: "center",
                 display: "flex",
-                flexDirection: "column", // Vertikale Ausrichtung der Inhalte
-                justifyContent: "center", // Vertikal zentrieren
-                alignItems: "center", // Horizontal zentrieren
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
                 padding: "10px",
               }}
               key={index}
@@ -206,13 +204,13 @@ const Homepage: React.FC = () => {
                 </h5>
                 <div
                   style={{
-                    textAlign: "center", // Zentriert alle Texte in der Mitte
+                    textAlign: "center",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    width: "100%", // Stellt sicher, dass die Texte gleichmäßig verteilt sind
-                    marginBottom: "20px", // Abstand unten
+                    width: "100%", 
+                    marginBottom: "20px"
                   }}
                 >
                   <p style={{ margin: "5px 0" }}>
@@ -233,7 +231,7 @@ const Homepage: React.FC = () => {
           ))}
         </div>
       </div>
-      {/* Buttons */}
+     
       <div
         style={{
           display: "flex",

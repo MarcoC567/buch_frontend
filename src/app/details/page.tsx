@@ -22,6 +22,25 @@ const formatDate = (dateString: string) => {
   }
 };
 
+const renderStars = (rating: string) => {
+  const ratingValue = parseFloat(rating);
+  const fullStars = Math.floor(ratingValue);
+  const hasHalfStar = ratingValue % 1 !== 0;
+
+  const stars = [];
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) {
+      stars.push("★");  // Volle Sterne
+    } else if (i === fullStars && hasHalfStar) {
+      stars.push("☆");  // Halbe Sterne
+    } else {
+      stars.push("☆");  // Leere Sterne
+    }
+  }
+
+  return stars.join(" "); // Sterne als String zurückgeben
+};
+
 const formatRabatt = (rabatt: number) => `${_.round(rabatt, 2)}%`;
 
 const BookDetails = () => {
@@ -197,7 +216,9 @@ const BookDetails = () => {
               </div>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Datum</Badge>
+              <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>
+                Datum
+              </Badge>
               <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
                 {buchDatum ? formatDate(buchDatum) : "Datum nicht verfügbar"}
               </div>
@@ -233,10 +254,12 @@ const BookDetails = () => {
               </div>
             </div>
           </div>
-  
+
           <div>
             <div style={{ marginBottom: "20px" }}>
-              <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Rabatt</Badge>
+              <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>
+                Rabatt
+              </Badge>
               <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
                 {buchRabatt !== undefined
                   ? formatRabatt(buchRabatt)
@@ -244,10 +267,12 @@ const BookDetails = () => {
               </div>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Rating</Badge>
+              <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>
+                Rating
+              </Badge>
               <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
                 {buchRating !== undefined
-                  ? buchRating.toString()
+                  ? renderStars(buchRating.toString())
                   : "Rating nicht verfügbar"}
               </div>
             </div>
@@ -266,7 +291,6 @@ const BookDetails = () => {
       </div>
     </div>
   );
-  
 };
 
 export default BookDetails;

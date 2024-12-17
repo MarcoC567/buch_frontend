@@ -37,9 +37,8 @@ interface BuchDetails {
   rabatt: string;
 }
 
-
 const BookSearchPage = () => {
-  const { isLoggedIn } = useAuth();
+  const { writeAccess } = useAuth();
   const [buecher, setBuecher] = useState<Buch[]>([]); // Liste aller Bücher
   const [buchDetails, setBuchDetails] = useState<BuchDetails | null>(null); // Details eines Buches
   const [sucheISBN, setSucheISBN] = useState<string>(""); // ID für die Buchsuche
@@ -51,8 +50,6 @@ const BookSearchPage = () => {
   const [isLieferbar, setIsLieferbar] = useState(false);
   const [error, setError] = useState(false);
 
-
-  // Fetch all buecher (id, version, titel, and type)
   const fetchAllBooks = async () => {
     try {
       const response = await axios.post(
@@ -78,22 +75,29 @@ const BookSearchPage = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
+      console.log("API Response:", response.data);
   
-      const fetchedBooks = response.data.data.buecher.map((buch: Buch) => ({
-        id: buch.id,
-        isbn: buch.isbn,
-        rating: buch.rating,
-        titel: buch.titel.titel,
-        art: buch.art,
-        lieferbar: buch.lieferbar,
-        schlagwoerter: buch.schlagwoerter || [],
-      }));      
+      const fetchedBooks = response.data.data.buecher.map((buch: Buch) => {
+        console.log("Vor return von fetchedBooks: ",buch);
+  
+        return {
+          id: buch.id,
+          isbn: buch.isbn,
+          rating: buch.rating,
+          titel: buch.titel,
+          art: buch.art,
+          lieferbar: buch.lieferbar,
+          schlagwoerter: buch.schlagwoerter || [],
+        };
+      });
+      console.log("nach fetchedBooks: ", fetchedBooks);
       setBuecher(fetchedBooks);
     } catch (err) {
       console.error("Error fetching buecher:", err);
       setError(true);
     }
   };
+  
 
   // Reset filters and book details
   const resetFilters = () => {
@@ -342,20 +346,20 @@ const BookSearchPage = () => {
           </tr>
         </thead>
         <tbody>
-          {buecher.map((buch) => (
-            <tr key={buch.id}>
-              <td>{buch.id}</td>
-              <td>{buch.isbn}</td>
-              <td>{buch.titel}</td>
-              <td>{renderStars(buch.rating)}</td>
+          {buecher.map((buecher) => (
+            <tr key={buecher.id}>
+              <td>{buecher.id}</td>
+              <td>{buecher.isbn}</td>
+              <td>{buecher.titel.titel}</td>
+              <td>{renderStars(buecher.rating)}</td>
               <td>
                 {/* InfoCircle immer anzeigen */}
-                <Link href={`/details/${buch.id}`} passHref>
+                <Link href={`/details?id=${buecher.id}`} passHref>
                   <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
                 </Link>
                 {/* Pen nur anzeigen, wenn eingeloggt */}
-                {isLoggedIn() && (
-                  <Link href={`/details/${buch.id}/edit`} passHref>
+                {writeAccess && (
+                  <Link href={`/details/${buecher.id}/edit`} passHref>
                     <Pen style={{ cursor: "pointer" }} />
                   </Link>
                 )}
