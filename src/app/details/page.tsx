@@ -165,7 +165,7 @@ const BookDetails = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
+        marginTop: '30px',
       }}
     >
       <div

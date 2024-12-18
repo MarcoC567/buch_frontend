@@ -7,6 +7,7 @@ import { Button } from "react-bootstrap";
 import { useAuth } from "../api/auth/useAuth";
 
 const Navbar = () => {
+  const { writeAccess } = useAuth();
   const { isLoggedIn, logout } = useAuth();
   const [activeLink, setActiveLink] = useState("#");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -72,6 +73,7 @@ const Navbar = () => {
             </li>
 
             <li className="nav-item">
+              {writeAccess && (
               <Link
                 href="/add"
                 className={`nav-link ${
@@ -81,6 +83,7 @@ const Navbar = () => {
               >
                 Hinzufügen
               </Link>
+)}
             </li>
           </ul>
 

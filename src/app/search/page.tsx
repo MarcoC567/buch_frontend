@@ -179,25 +179,24 @@ const BookSearchPage = () => {
     fetchAllBooks();
   }, []);
 
-  // Funktion zur Anzeige von Sternen
+
   const renderStars = (rating: string) => {
     const ratingValue = parseFloat(rating);
     const fullStars = Math.floor(ratingValue);
     const hasHalfStar = ratingValue % 1 !== 0;
 
-    // Erstelle Sterne als Array
     const stars = [];
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push("★"); // Voller Stern
+        stars.push("★"); 
       } else if (i === fullStars && hasHalfStar) {
-        stars.push("☆"); // Halber Stern
+        stars.push("☆"); 
       } else {
-        stars.push("☆"); // Leer Stern
+        stars.push("☆"); 
       }
     }
 
-    return stars.join(" "); // Sterne als String zurückgeben
+    return stars.join(" "); 
   };
 
   return (
@@ -315,7 +314,6 @@ const BookSearchPage = () => {
         </Alert>
       )}
 
-      {/* Buchdetails anzeigen */}
       {buchDetails && (
         <div className="mt-4">
           <h3>Details zum Buch</h3>
@@ -333,7 +331,6 @@ const BookSearchPage = () => {
         </div>
       )}
 
-      {/* Liste aller Bücher */}
       <h3 className="mt-5">Liste aller Bücher</h3>
       <Table striped bordered hover className="mt-4">
         <thead>
@@ -353,11 +350,9 @@ const BookSearchPage = () => {
               <td>{buecher.titel.titel}</td>
               <td>{renderStars(buecher.rating)}</td>
               <td>
-                {/* InfoCircle immer anzeigen */}
                 <Link href={`/details?id=${buecher.id}`} passHref>
                   <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
                 </Link>
-                {/* Pen nur anzeigen, wenn eingeloggt */}
                 {writeAccess && (
                   <Link href={`/details/${buecher.id}/edit`} passHref>
                     <Pen style={{ cursor: "pointer" }} />

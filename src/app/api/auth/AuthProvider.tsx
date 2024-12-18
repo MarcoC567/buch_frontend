@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       console.log(token);
       const payload = JSON.parse(atob(token.split(".")[1]));
-      const roles = payload.realm_access?.roles || [];
-      if (roles.includes("buch-admin")) {
+      const roles = payload?.resource_access?.["nest-client"]?.roles || [];
+      if (roles.includes("admin")) {
         setWriteAccess(true);
       } else {
         setWriteAccess(false);
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setWriteAccess(false);
     }
   };
-
+  console.log("WriteAccess: ", writeAccess)
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const response = await loginUser({ username, password });
