@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, Badge, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { useAuth } from '../api/auth/useAuth';
 
 const ADD_BOOK_MUTATION = `
   mutation createBook($input: BuchInput!) {
@@ -28,10 +29,11 @@ const BookForm = () => {
     datum: '',
     art: 'HARDCOVER', // Standardwert
     rating: 1, // Standardwert
-    abbildungen: [{ beschriftung: '', contentType: '' }], // Standardwert
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const { token } = useAuth(); // Token vom AuthProvider holen
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +44,7 @@ const BookForm = () => {
   
     const input = {
       ...rest,
+      
       titel: {
         titel: titel,
         untertitel: untertitel || '',
@@ -50,51 +53,74 @@ const BookForm = () => {
         .split(',')
         .map((tag) => tag.trim())
         .filter((tag) => tag !== ''),
-      abbildungen: [
-        {
-          beschriftung: 'Abb. 1',
-          contentType: 'img/png',
-        },
-      ],
-      art: 'HARDCOVER', // Beispielwert
-      rating: 5, // Beispielwert
+      art: rest.art || 'HARDCOVER',
+      
     };
   
-    console.log('Input-Daten:', JSON.stringify(input, null, 2)); // Debugging
+    console.log("GraphQL Input:", input); // Debugging
   
     try {
-      const response = await axios.post('https://localhost:3000/graphql', {
-        query: ADD_BOOK_MUTATION,
-        variables: { input },
-      });
+      const response = await axios.post(
+        'https://localhost:3000/graphql',
+        {
+          query: ADD_BOOK_MUTATION,
+          variables: { input },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Token hinzufügen
+          },
+        }
+      );
   
       const { data, errors } = response.data;
   
       if (errors && errors.length > 0) {
-        console.error('Server-Fehler:', errors);
         throw new Error(errors[0].message);
       }
   
       alert(`Buch erfolgreich hinzugefügt! ID: ${data.create.id}`);
       router.push('/');
-    } catch (err: any) {
-      console.error('Fehler beim Hinzufügen des Buches:', err.response?.data || err.message);
-      setErrorMessage(err.message || 'Unbekannter Fehler');
+    } catch (err: unknown) {
+      // Typ überprüfen und Fehler behandeln
+      if (axios.isAxiosError(err)) {
+        setErrorMessage(err.response?.data?.message || 'Server-Fehler');
+      } else if (err instanceof Error) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage('Ein unbekannter Fehler ist aufgetreten.');
+      }
     } finally {
       setLoading(false);
     }
   };
   
-  
-  
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    const { name, value, type } = e.target;
+  
+    if (type === 'checkbox') {
+      // Checkbox-Wert explizit behandeln
+      const target = e.target as HTMLInputElement; // Typverengung für 'checked'
+      setFormData({
+        ...formData,
+        [name]: target.checked,
+      });
+    } else if (type === 'number') {
+      // Zahleneingaben behandeln
+      setFormData({
+        ...formData,
+        [name]: parseFloat(value) || 0,
+      });
+    } else {
+      // Standardverhalten für andere Eingabetypen
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
+  
+  
 
   return (
     <div
@@ -256,46 +282,10 @@ const BookForm = () => {
                 name="datum"
                 className="form-control"
                 value={formData.datum}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Abbildungen */}
-            <div className="mb-4">
-              <Badge className="mb-3">Abbildungen</Badge>
-              <input
-                type="text"
-                name="abbildungenBeschriftung"
-                className="form-control"
-                placeholder="Beschriftung"
-                value={formData.abbildungen[0].beschriftung}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    abbildungen: [
-                      {
-                        ...formData.abbildungen[0],
-                        beschriftung: e.target.value,
-                      },
-                    ],
-                  })
-                }
-              />
-              <input
-                type="text"
-                name="abbildungenContentType"
-                className="form-control mt-2"
-                placeholder="Content Type"
-                value={formData.abbildungen[0].contentType}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    abbildungen: [
-                      {
-                        ...formData.abbildungen[0],
-                        contentType: e.target.value,
-                      },
-                    ],
+                    datum: e.target.value,
                   })
                 }
               />
