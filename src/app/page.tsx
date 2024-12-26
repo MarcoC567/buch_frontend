@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import {api} from "./config";
 
 interface CardData {
   id: string;
@@ -40,7 +41,7 @@ const Homepage: React.FC = () => {
     try {
 
       const response = await axios.post(
-        "https://localhost:3000/graphql",
+        `${api}/graphql`,
         {
           query: `
             query {
@@ -161,12 +162,11 @@ const Homepage: React.FC = () => {
         >
           {visibleCards.map((card, index) => (
             <div
-              className="card"
+              className="card border-primary"
               style={{
                 width: "350px",
                 height: "350px",
                 flexShrink: 0,
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
                 borderRadius: "10px",
                 overflow: "hidden",
                 textAlign: "center",

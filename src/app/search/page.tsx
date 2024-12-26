@@ -11,6 +11,7 @@ import { useAuth } from "../api/auth/useAuth";
 import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen } from "react-bootstrap-icons";
 import Link from "next/link";
+import {api} from "../config";
 
 interface Buch {
   id: number;
@@ -53,7 +54,7 @@ const BookSearchPage = () => {
   const fetchAllBooks = async () => {
     try {
       const response = await axios.post(
-        "https://localhost:3000/graphql",
+        `${api}/graphql`,
         {
           query: `
             query {
@@ -93,7 +94,7 @@ const BookSearchPage = () => {
       console.log("nach fetchedBooks: ", fetchedBooks);
       setBuecher(fetchedBooks);
     } catch (err) {
-      console.error("Error fetching buecher:", err);
+      console.error("Error beim fetchen der buecher:", err);
       setError(true);
     }
   };
