@@ -21,11 +21,11 @@ const Login = () => {
         router.push("/");
         console.log("ok");
       } else {
-        setErrorMessage("Invalid user or password. Please try again.");
+        setErrorMessage("Ungültiger Username oder Passwort. Bitte bersuche es erneut.");
       }
     } catch (error) {
       console.error(error);
-      setErrorMessage("An error occurred during login.");
+      setErrorMessage("Ein Fehler ist während des Loginversuchs aufgetreten.");
     }
   };
   return (
