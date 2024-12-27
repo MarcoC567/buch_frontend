@@ -6,7 +6,6 @@ import { useAuth } from "../api/auth/useAuth";
 import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen, Trash } from "react-bootstrap-icons";
 import Link from "next/link";
-import {api} from "../config";
 
 interface Buch {
   id: number;
@@ -24,7 +23,6 @@ const DELETE_BOOK_MUTATION = `
   }
 `;
 
-
 const BookSearchPage = () => {
   const { writeAccess } = useAuth();
   const [filteredBooks, setFilteredBooks] = useState<Buch[]>([]); // Nur die Suchergebnisse
@@ -41,75 +39,70 @@ const BookSearchPage = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.post(
-        `${api}/graphql`,
-        {
-          query: `
-            query {
-              buecher {
-                id
-                isbn
-                rating
-                art
-                lieferbar
-                schlagwoerter
-                titel {
-                  titel
-                }
-              }
+      // GraphQL Query mit einem gemeinsamen "suchkriterien"-Input
+      const query = `
+        query getFilteredBooks($suchkriterien: SuchkriterienInput) {
+          buecher(suchkriterien: $suchkriterien) {
+            id
+            isbn
+            rating
+            art
+            lieferbar
+            schlagwoerter
+            titel {
+              titel
             }
-          `,
+          }
+        }
+      `;
+  
+      // Variablen für die Suchkriterien zusammenstellen
+      interface Suchkriterien {
+        isbn?: string;
+        titel?: string;
+        rating?: number;
+        schlagwoerter?: string[];
+        art?: string;
+        lieferbar?: boolean;
+      }
+
+      const suchkriterien: Suchkriterien = {};
+      if (sucheISBN) suchkriterien.isbn = sucheISBN;
+      if (sucheTitel) suchkriterien.titel = sucheTitel;
+      if (sucheRating) suchkriterien.rating = parseInt(sucheRating, 10);
+      if (istJavaScript || istTypeScript || istPython) {
+        const schlagwoerter = [
+          ...(istJavaScript ? ["JAVASCRIPT"] : []),
+          ...(istTypeScript ? ["TYPESCRIPT"] : []),
+          ...(istPython ? ["PYTHON"] : []),
+        ];
+        if (schlagwoerter.length > 0) {
+          suchkriterien.schlagwoerter = schlagwoerter;
+          console.log("Schlagwörter:", schlagwoerter); // Logge die Schlagwörter
+        }
+      }
+      if (sucheBuchArt) suchkriterien.art = sucheBuchArt;
+      if (istLieferbar) suchkriterien.lieferbar = istLieferbar;
+  
+      // GraphQL-Abfrage ausführen
+      const response = await axios.post(
+        "https://localhost:3000/graphql",
+        {
+          query,
+          variables: { suchkriterien },
         },
         { headers: { "Content-Type": "application/json" } }
       );
-
-      let buecher = response.data.data.buecher;
-
-      if (sucheISBN) {
-        buecher = buecher.filter((buch: Buch) => buch.isbn.includes(sucheISBN));
-      }
-
-      if (sucheTitel) {
-        buecher = buecher.filter((buch: Buch) =>
-          buch.titel.titel.toLowerCase().includes(sucheTitel.toLowerCase())
-        );
-      }
-
-      if (sucheRating) {
-        const selectedRating = Number(sucheRating);  // Convert to number directly
-        buecher = buecher.filter(
-          (buch: Buch) => Number(buch.rating) === selectedRating
-        );
-      }
-
-      if (istJavaScript || istTypeScript || istPython) {
-        buecher = buecher.filter((buch: Buch) => {
-          const lowerCaseSchlagwoerter = Array.isArray(buch.schlagwoerter)
-            ? buch.schlagwoerter.map((tag) => tag.toLowerCase())
-            : [];
-          return (
-            (istJavaScript && lowerCaseSchlagwoerter.includes("javascript")) ||
-            (istTypeScript && lowerCaseSchlagwoerter.includes("typescript")) ||
-            (istPython && lowerCaseSchlagwoerter.includes("python"))
-          );
-        });
-      }          
-
-      if (sucheBuchArt) {
-        buecher = buecher.filter((buch: Buch) => buch.art === sucheBuchArt); // Werte wie "EPUB", "HARDCOVER"
-      }
-
-      if (istLieferbar) {
-        buecher = buecher.filter((buch: Buch) => buch.lieferbar); // Einfacher Wahrheitswert-Check
-      }
-
+  
+      const buecher = response.data.data.buecher || [];
       setFilteredBooks(buecher);
       setError(buecher.length === 0);
     } catch (err) {
-      console.error("Error fetching buecher:", err);
+      console.error("Error fetching filtered books:", err);
       setError(true);
     }
   };
+  
 
   const resetFilters = () => {
     setSucheISBN("");
