@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
 import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen, Trash } from "react-bootstrap-icons";
 import Link from "next/link";
+import {api} from "../config";
 
 interface Buch {
   id: number;
@@ -32,6 +33,7 @@ const BookSearchPage = () => {
   const [sucheRating, setSucheRating] = useState(""); // Rating für die Buchsuche
   const [istJavaScript, setIstJavaScript] = useState(false);
   const [istTypeScript, setIstTypeScript] = useState(false);
+  const [istPython, setIstPython] = useState(false);
   const [sucheBuchArt, setSucheBuchArt] = useState<string>("");
   const [istLieferbar, setIstLieferbar] = useState<boolean>(false);
   const { token } = useAuth();
@@ -40,7 +42,7 @@ const BookSearchPage = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.post(
-        "https://localhost:3000/graphql",
+        `${api}/graphql`,
         {
           query: `
             query {
@@ -80,14 +82,15 @@ const BookSearchPage = () => {
         );
       }
 
-      if (istJavaScript || istTypeScript) {
+      if (istJavaScript || istTypeScript || istPython) {
         buecher = buecher.filter((buch: Buch) => {
           const lowerCaseSchlagwoerter = Array.isArray(buch.schlagwoerter)
             ? buch.schlagwoerter.map((tag) => tag.toLowerCase())
             : [];
           return (
             (istJavaScript && lowerCaseSchlagwoerter.includes("javascript")) ||
-            (istTypeScript && lowerCaseSchlagwoerter.includes("typescript"))
+            (istTypeScript && lowerCaseSchlagwoerter.includes("typescript")) ||
+            (istPython && lowerCaseSchlagwoerter.includes("python"))
           );
         });
       }          
@@ -115,6 +118,7 @@ const BookSearchPage = () => {
     setSucheRating("");
     setIstJavaScript(false);
     setIstTypeScript(false);
+    setIstPython(false);
     setSucheBuchArt("");
     setIstLieferbar(false);
     setError(false);
@@ -186,7 +190,7 @@ const BookSearchPage = () => {
       <h1>Buchsuche</h1>
       <Form>
         <Form.Group className="mb-4">
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>ISBN</Badge>
+          <Badge>ISBN</Badge>
           <Form.Control
             style={{ fontSize: "0.9rem", marginTop: "5px" }}
             type="text"
@@ -197,7 +201,7 @@ const BookSearchPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Titel</Badge>
+          <Badge>Titel</Badge>
           <Form.Control
             style={{ fontSize: "0.9rem", marginTop: "5px" }}
             type="text"
@@ -208,7 +212,7 @@ const BookSearchPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Rating</Badge>
+          <Badge>Rating</Badge>
           <Form.Select
             style={{ fontSize: "0.9rem", marginTop: "5px" }}
             value={sucheRating}
@@ -221,7 +225,7 @@ const BookSearchPage = () => {
           </Form.Select>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>JavaScript oder TypeScript</Badge>
+          <Badge>Schlagwörter</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="checkbox"
@@ -237,10 +241,17 @@ const BookSearchPage = () => {
               checked={istTypeScript}
               onChange={(e) => setIstTypeScript(e.target.checked)}
             />
+            <Form.Check
+              type="checkbox"
+              label={<label htmlFor="python-checkbox">Python</label>}
+              id="Python-checkbox"
+              checked={istPython}
+              onChange={(e) => setIstPython(e.target.checked)}
+            />
           </div>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Buchformat</Badge>
+          <Badge>Buchformat</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="radio"
@@ -272,7 +283,7 @@ const BookSearchPage = () => {
           </div>
         </Form.Group>
         <Form.Group className="mb-">
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Lieferbarkeit</Badge>
+          <Badge>Lieferbarkeit</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="checkbox"

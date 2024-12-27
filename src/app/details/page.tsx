@@ -208,19 +208,19 @@ const BookDetails = () => {
     >
       <div style={{ flex: "1 1 200px", paddingLeft: "10px" }}>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Art</Badge>
+          <Badge >Art</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             {buchArt || "Art nicht verfügbar"}
           </div>
         </div>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Datum</Badge>
+          <Badge>Datum</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             {buchDatum ? formatDate(buchDatum) : "Datum nicht verfügbar"}
           </div>
         </div>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Homepage</Badge>
+          <Badge>Homepage</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             {buchHomepage ? (
               <a href={buchHomepage} target="_blank" rel="noopener noreferrer">
@@ -232,10 +232,10 @@ const BookDetails = () => {
           </div>
         </div>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>
+          <Badge>
             Lieferbar
           </Badge>
-          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
+          <div>
             {buchLieferbar !== undefined
               ? buchLieferbar
                 ? "Ja"
@@ -247,7 +247,7 @@ const BookDetails = () => {
 
       <div style={{ flex: "1 1 200px", paddingRight: "10px", textAlign: "right" }}>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Rabatt</Badge>
+          <Badge>Rabatt</Badge>
           <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
             {buchRabatt !== undefined
               ? formatRabatt(buchRabatt)
@@ -255,7 +255,7 @@ const BookDetails = () => {
           </div>
         </div>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>Rating</Badge>
+          <Badge>Rating</Badge>
           <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
             {buchRating !== undefined
               ? renderStars(buchRating.toString())
@@ -263,7 +263,7 @@ const BookDetails = () => {
           </div>
         </div>
         <div style={{ marginBottom: "20px" }}>
-          <Badge style={{ fontSize: "1.0rem", padding: "10px" }}>
+          <Badge>
             Schlagwörter
           </Badge>
           <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
