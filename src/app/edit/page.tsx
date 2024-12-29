@@ -5,18 +5,16 @@ import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Badge, Button, Alert, Spinner } from "react-bootstrap";
 import RouteGuard from "../api/auth/routeGuard";
-import { FaCalendarAlt } from 'react-icons/fa';
+import { FaCalendarAlt } from "react-icons/fa";
+import { api } from "../config";
 
 const EditBook = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
-
   const [, setBuch] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Formulareingaben
   const [isbn, setIsbn] = useState("");
   const [preis, setPreis] = useState("");
   const [art, setArt] = useState("");
@@ -39,10 +37,8 @@ const EditBook = () => {
   const fetchBookData = async (id: string) => {
     try {
       setLoading(true);
-      const response = await axios.post(
-        "https://localhost:3000/graphql",
-        {
-          query: `
+      const response = await axios.post(`${api}/graphql`, {
+        query: `
             query FindBookById($id: ID!) {
               buch(id: $id) {
                 id
@@ -58,9 +54,8 @@ const EditBook = () => {
               }
             }
           `,
-          variables: { id: parseInt(id) },
-        }
-      );
+        variables: { id: parseInt(id) },
+      });
 
       const bookData = response.data?.data?.buch;
       if (bookData) {
@@ -118,7 +113,7 @@ const EditBook = () => {
 
     try {
       const response = await axios.post(
-        "https://localhost:3000/graphql",
+        `${api}/graphql`,
         {
           query: `
             mutation updateBook($input: BuchUpdateInput!) {
@@ -142,7 +137,9 @@ const EditBook = () => {
         throw new Error(errors[0].message);
       }
 
-      alert(`Buch erfolgreich bearbeitet! Neue Version: ${data.update.version}`);
+      alert(
+        `Buch erfolgreich bearbeitet! Neue Version: ${data.update.version}`
+      );
       router.push("/");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -241,34 +238,42 @@ const EditBook = () => {
 
               <div className="mb-4">
                 <Badge className="mb-3">Datum</Badge>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
                   <input
                     type="date"
                     name="datum"
                     className="form-control"
                     placeholder="Datum angeben"
                     style={{
-                      paddingRight: '40px', 
-                      border: '1px solid #a259ff',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      color: '#6c757d',
+                      paddingRight: "40px",
+                      border: "1px solid #a259ff",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      color: "#6c757d",
                     }}
                     value={datum}
                     onChange={(e) => setDatum(e.target.value)}
                   />
                   <FaCalendarAlt
                     style={{
-                      position: 'absolute',
-                      right: '10px',
-                      color: '#a259ff',
-                      cursor: 'pointer',
+                      position: "absolute",
+                      right: "10px",
+                      color: "#a259ff",
+                      cursor: "pointer",
                     }}
                     onClick={() => {
-                      const dateInput = document.querySelector('input[name="datum"]') as HTMLInputElement;
+                      const dateInput = document.querySelector(
+                        'input[name="datum"]'
+                      ) as HTMLInputElement;
                       if (dateInput) {
-                        dateInput.showPicker?.(); 
-                        dateInput.focus(); 
+                        dateInput.showPicker?.();
+                        dateInput.focus();
                       }
                     }}
                   />
@@ -286,7 +291,6 @@ const EditBook = () => {
                   onChange={(e) => setHomepage(e.target.value)}
                 />
               </div>
-
 
               <div className="mb-4">
                 <Badge className="mb-3">Rating</Badge>
@@ -323,14 +327,17 @@ const EditBook = () => {
                   paddingRight: "5px",
                   paddingBottom: "5px",
                 }}
-                >
+              >
                 <Badge
                   className="mb-3"
                   style={{ marginTop: "5px", marginLeft: "5px" }}
                 >
                   Lieferbar
                 </Badge>
-                <div className="form-check mx-3" style={{ marginBottom: "10px" }}>
+                <div
+                  className="form-check mx-3"
+                  style={{ marginBottom: "10px" }}
+                >
                   <input
                     type="checkbox"
                     name="lieferbar"
@@ -348,8 +355,6 @@ const EditBook = () => {
                   </label>
                 </div>
               </div>
-
-
 
               {error && (
                 <Alert variant="danger" className="mt-3">

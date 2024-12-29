@@ -74,16 +74,16 @@ const Navbar = () => {
 
             <li className="nav-item">
               {writeAccess && (
-              <Link
-                href="/add"
-                className={`nav-link ${
-                  activeLink === "Hinzufügen" ? "active" : ""
-                }`}
-                onClick={() => handleLinkClick("Hinzufügen")}
-              >
-                Hinzufügen
-              </Link>
-)}
+                <Link
+                  href="/add"
+                  className={`nav-link ${
+                    activeLink === "Hinzufügen" ? "active" : ""
+                  }`}
+                  onClick={() => handleLinkClick("Hinzufügen")}
+                >
+                  Hinzufügen
+                </Link>
+              )}
             </li>
           </ul>
 

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Alert, Spinner, Container, Badge } from "react-bootstrap";
 import { format } from "date-fns";
 import _ from "lodash";
-import {api} from "../config";
+import { api } from "../config";
 
 const formatPrice = (preis: number) => {
   const formatter = new Intl.NumberFormat("de-DE", {
@@ -31,15 +31,15 @@ const renderStars = (rating: string) => {
   const stars = [];
   for (let i = 0; i < 5; i++) {
     if (i < fullStars) {
-      stars.push("★"); 
+      stars.push("★");
     } else if (i === fullStars && hasHalfStar) {
-      stars.push("☆"); 
+      stars.push("☆");
     } else {
-      stars.push("☆"); 
+      stars.push("☆");
     }
   }
 
-  return stars.join(" "); 
+  return stars.join(" ");
 };
 
 const formatRabatt = (rabatt: number) => `${_.round(rabatt, 2)}%`;
@@ -161,121 +161,129 @@ const BookDetails = () => {
   }
 
   return (
-<div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: "5px",
-  }}
->
-  <div
-    className="card border-primary"
-    style={{
-      maxWidth: "100%",
-      width: "550px",
-      flexShrink: 0,
-      borderRadius: "10px",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column",
-      padding: "10px",
-      position: "relative",
-    }}
-  >
-    <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h1>{buchTitel || "Titel nicht verfügbar"}</h1>
-      <h4 className="text-muted">
-        {buchUntertitel ? `-${buchUntertitel}-` : ""}
-      </h4>
-      <h3>
-        {buchPreis !== undefined
-          ? formatPrice(
-              typeof buchPreis === "string" ? parseFloat(buchPreis) : buchPreis
-            )
-          : "Preis nicht verfügbar"}
-      </h3>
-    </div>
     <div
       style={{
         display: "flex",
-        justifyContent: "space-between",
-        marginTop: "20px",
-        padding: "0 20px",
-        gap: "10px",
-        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: "5px",
       }}
     >
-      <div style={{ flex: "1 1 200px", paddingLeft: "10px" }}>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge >Art</Badge>
-          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
-            {buchArt || "Art nicht verfügbar"}
-          </div>
+      <div
+        className="card border-primary"
+        style={{
+          maxWidth: "100%",
+          width: "550px",
+          flexShrink: 0,
+          borderRadius: "10px",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          padding: "10px",
+          position: "relative",
+        }}
+      >
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <h1>{buchTitel || "Titel nicht verfügbar"}</h1>
+          <h4 className="text-muted">
+            {buchUntertitel ? `-${buchUntertitel}-` : ""}
+          </h4>
+          <h3>
+            {buchPreis !== undefined
+              ? formatPrice(
+                  typeof buchPreis === "string"
+                    ? parseFloat(buchPreis)
+                    : buchPreis
+                )
+              : "Preis nicht verfügbar"}
+          </h3>
         </div>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge>Datum</Badge>
-          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
-            {buchDatum ? formatDate(buchDatum) : "Datum nicht verfügbar"}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: "20px",
+            padding: "0 20px",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
+          <div style={{ flex: "1 1 200px", paddingLeft: "10px" }}>
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Art</Badge>
+              <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
+                {buchArt || "Art nicht verfügbar"}
+              </div>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Datum</Badge>
+              <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
+                {buchDatum ? formatDate(buchDatum) : "Datum nicht verfügbar"}
+              </div>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Homepage</Badge>
+              <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
+                {buchHomepage ? (
+                  <a
+                    href={buchHomepage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {buchHomepage}
+                  </a>
+                ) : (
+                  "Homepage nicht verfügbar"
+                )}
+              </div>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Lieferbar</Badge>
+              <div>
+                {buchLieferbar !== undefined
+                  ? buchLieferbar
+                    ? "Ja"
+                    : "Nein"
+                  : "Information nicht verfügbar"}
+              </div>
+            </div>
           </div>
-        </div>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge>Homepage</Badge>
-          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
-            {buchHomepage ? (
-              <a href={buchHomepage} target="_blank" rel="noopener noreferrer">
-                {buchHomepage}
-              </a>
-            ) : (
-              "Homepage nicht verfügbar"
-            )}
-          </div>
-        </div>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge>
-            Lieferbar
-          </Badge>
-          <div>
-            {buchLieferbar !== undefined
-              ? buchLieferbar
-                ? "Ja"
-                : "Nein"
-              : "Lieferbarkeitsstatus nicht verfügbar"}
-          </div>
-        </div>
-      </div>
 
-      <div style={{ flex: "1 1 200px", paddingRight: "10px", textAlign: "right" }}>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge>Rabatt</Badge>
-          <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
-            {buchRabatt !== undefined
-              ? formatRabatt(buchRabatt)
-              : "Rabatt nicht verfügbar"}
-          </div>
-        </div>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge>Rating</Badge>
-          <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
-            {buchRating !== undefined
-              ? renderStars(buchRating.toString())
-              : "Rating nicht verfügbar"}
-          </div>
-        </div>
-        <div style={{ marginBottom: "20px" }}>
-          <Badge>
-            Schlagwörter
-          </Badge>
-          <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
-            {buchSchlagwoerter && buchSchlagwoerter.length > 0
-              ? buchSchlagwoerter.join(", ")
-              : "Schlagwörter nicht verfügbar"}
+          <div
+            style={{
+              flex: "1 1 200px",
+              paddingRight: "10px",
+              textAlign: "right",
+            }}
+          >
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Rabatt</Badge>
+              <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
+                {buchRabatt !== undefined
+                  ? formatRabatt(buchRabatt)
+                  : "Rabatt nicht verfügbar"}
+              </div>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Rating</Badge>
+              <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
+                {buchRating !== undefined
+                  ? renderStars(buchRating.toString())
+                  : "Rating nicht verfügbar"}
+              </div>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <Badge>Schlagwörter</Badge>
+              <div style={{ fontSize: "1.1rem", marginTop: "5px" }}>
+                {buchSchlagwoerter && buchSchlagwoerter.length > 0
+                  ? buchSchlagwoerter.join(", ")
+                  : "Schlagwörter nicht verfügbar"}
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
   );
 };
 

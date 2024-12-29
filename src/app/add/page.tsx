@@ -6,9 +6,7 @@ import { Alert, Badge, Button } from "react-bootstrap";
 import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
 import RouteGuard from "../api/auth/routeGuard";
-import {api} from "../config";
-
-
+import { api } from "../config";
 
 const ADD_BOOK_MUTATION = `
   mutation createBook($input: BuchInput!) {
@@ -32,7 +30,7 @@ const BookForm = () => {
     homepage: "",
     datum: "",
     art: "HARDCOVER",
-    rating: 1, 
+    rating: 1,
   });
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -59,7 +57,7 @@ const BookForm = () => {
       art: rest.art || "HARDCOVER",
     };
 
-    console.log("GraphQL Input:", input); // Debugging
+    console.log("GraphQL Input:", input);
 
     try {
       const response = await axios.post(
@@ -70,7 +68,7 @@ const BookForm = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Token hinzufügen
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -102,7 +100,7 @@ const BookForm = () => {
     const { name, value, type } = e.target;
 
     if (type === "checkbox") {
-      const target = e.target as HTMLInputElement; 
+      const target = e.target as HTMLInputElement;
       setFormData({
         ...formData,
         [name]: target.checked,

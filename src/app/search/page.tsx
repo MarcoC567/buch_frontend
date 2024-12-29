@@ -1,11 +1,12 @@
 "use client";
 
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
 import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen, Trash } from "react-bootstrap-icons";
 import Link from "next/link";
+import { api } from "../config";
 
 interface Buch {
   id: number;
@@ -25,10 +26,10 @@ const DELETE_BOOK_MUTATION = `
 
 const BookSearchPage = () => {
   const { writeAccess } = useAuth();
-  const [filteredBooks, setFilteredBooks] = useState<Buch[]>([]); // Nur die Suchergebnisse
-  const [sucheISBN, setSucheISBN] = useState<string>(""); // ISBN für die Buchsuche
-  const [sucheTitel, setSucheTitel] = useState<string>(""); // Titel für die Buchsuche
-  const [sucheRating, setSucheRating] = useState(""); // Rating für die Buchsuche
+  const [filteredBooks, setFilteredBooks] = useState<Buch[]>([]);
+  const [sucheISBN, setSucheISBN] = useState<string>("");
+  const [sucheTitel, setSucheTitel] = useState<string>("");
+  const [sucheRating, setSucheRating] = useState("");
   const [istJavaScript, setIstJavaScript] = useState(false);
   const [istTypeScript, setIstTypeScript] = useState(false);
   const [istPython, setIstPython] = useState(false);
@@ -39,7 +40,6 @@ const BookSearchPage = () => {
 
   const handleSearch = async () => {
     try {
-      // GraphQL Query mit einem gemeinsamen "suchkriterien"-Input
       const query = `
         query getFilteredBooks($suchkriterien: SuchkriterienInput) {
           buecher(suchkriterien: $suchkriterien) {
@@ -48,15 +48,16 @@ const BookSearchPage = () => {
             rating
             art
             lieferbar
-            schlagwoerter
+            javascript
+            typescript
+            python
             titel {
               titel
             }
           }
         }
       `;
-  
-      // Variablen für die Suchkriterien zusammenstellen
+
       interface Suchkriterien {
         isbn?: string;
         titel?: string;
@@ -64,36 +65,33 @@ const BookSearchPage = () => {
         schlagwoerter?: string[];
         art?: string;
         lieferbar?: boolean;
+        javascript?: string;
+        typescript?: string;
+        python?: string;
       }
 
       const suchkriterien: Suchkriterien = {};
       if (sucheISBN) suchkriterien.isbn = sucheISBN;
       if (sucheTitel) suchkriterien.titel = sucheTitel;
       if (sucheRating) suchkriterien.rating = parseInt(sucheRating, 10);
-      if (istJavaScript || istTypeScript || istPython) {
-        const schlagwoerter = [
-          ...(istJavaScript ? ["JAVASCRIPT"] : []),
-          ...(istTypeScript ? ["TYPESCRIPT"] : []),
-          ...(istPython ? ["PYTHON"] : []),
-        ];
-        if (schlagwoerter.length > 0) {
-          suchkriterien.schlagwoerter = schlagwoerter;
-          console.log("Schlagwörter:", schlagwoerter); // Logge die Schlagwörter
-        }
-      }
       if (sucheBuchArt) suchkriterien.art = sucheBuchArt;
       if (istLieferbar) suchkriterien.lieferbar = istLieferbar;
-  
-      // GraphQL-Abfrage ausführen
+
+      if (istJavaScript) suchkriterien.javascript = "true";
+      if (istTypeScript) suchkriterien.typescript = "true";
+      if (istPython) suchkriterien.python = "true";
+
+      console.log("Search Criteria:", suchkriterien);
+
       const response = await axios.post(
-        "https://localhost:3000/graphql",
+        `${api}/graphql`,
         {
           query,
           variables: { suchkriterien },
         },
         { headers: { "Content-Type": "application/json" } }
       );
-  
+
       const buecher = response.data.data.buecher || [];
       setFilteredBooks(buecher);
       setError(buecher.length === 0);
@@ -102,7 +100,6 @@ const BookSearchPage = () => {
       setError(true);
     }
   };
-  
 
   const resetFilters = () => {
     setSucheISBN("");
@@ -126,39 +123,42 @@ const BookSearchPage = () => {
   const handleDeleteRow = async (id: number) => {
     try {
       const response = await axios.post(
-        "https://localhost:3000/graphql",
+        `${api}/graphql`,
         {
           query: DELETE_BOOK_MUTATION,
           variables: { id },
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Authentifizierungstoken hinzufügen
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
-  
+
       const { data, errors } = response.data;
-  
+
       if (errors && errors.length > 0) {
-        throw new Error(errors[0].message); // Fehler vom Server anzeigen
+        throw new Error(errors[0].message);
       }
-  
+
       const success = data?.delete;
       if (success) {
-        // Entferne das Buch aus der lokalen Liste
-        setFilteredBooks((prevBooks) => prevBooks.filter((buch) => buch.id !== id));
+        setFilteredBooks((prevBooks) =>
+          prevBooks.filter((buch) => buch.id !== id)
+        );
         alert("Das Buch wurde erfolgreich gelöscht.");
       } else {
         throw new Error("Fehler beim Löschen des Buches.");
       }
     } catch (err) {
       console.error("Fehler beim Löschen des Buches:", err);
-      alert("Das Buch konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.");
+      alert(
+        "Das Buch konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+      );
     }
   };
-  
+
   const renderStars = (rating: string) => {
     const ratingValue = parseFloat(rating);
     const fullStars = Math.floor(ratingValue);
@@ -167,15 +167,15 @@ const BookSearchPage = () => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push("★"); 
+        stars.push("★");
       } else if (i === fullStars && hasHalfStar) {
-        stars.push("☆"); 
+        stars.push("☆");
       } else {
-        stars.push("☆"); 
+        stars.push("☆");
       }
     }
 
-    return stars.join(" "); 
+    return stars.join(" ");
   };
 
   return (
@@ -210,10 +210,12 @@ const BookSearchPage = () => {
             style={{ fontSize: "0.9rem", marginTop: "5px" }}
             value={sucheRating}
             onChange={(e) => setSucheRating(e.target.value)}
-            >
+          >
             <option value="">Wählen Sie ein Rating</option>
             {[1, 2, 3, 4, 5].map((star) => (
-                <option key={star} value={star}>{`${star} Stern${star > 1 ? "e" : ""}`}</option>
+              <option key={star} value={star}>{`${star} Stern${
+                star > 1 ? "e" : ""
+              }`}</option>
             ))}
           </Form.Select>
         </Form.Group>
@@ -275,12 +277,16 @@ const BookSearchPage = () => {
             />
           </div>
         </Form.Group>
-        <Form.Group className="mb-">
-          <Badge>Lieferbarkeit</Badge>
+        <Form.Group>
+          <Badge>Lieferbar</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="checkbox"
-              label={<label htmlFor="lieferbar-checkbox">Nur lieferbare Bücher</label>}
+              label={
+                <label htmlFor="lieferbar-checkbox">
+                  Nur lieferbare Bücher
+                </label>
+              }
               id="lieferbar-checkbox"
               checked={istLieferbar}
               onChange={(e) => setIstLieferbar(e.target.checked)}
@@ -323,23 +329,25 @@ const BookSearchPage = () => {
                 <td>{renderStars(buch.rating)}</td>
                 <td>
                   <Link href={`/details?id=${buch.id}`} passHref>
-                    <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
+                    <InfoCircle
+                      style={{ cursor: "pointer", marginRight: "10px" }}
+                    />
                   </Link>
                   {writeAccess && (
-                  <Link href={`/edit?id=${buch.id}`} passHref>
-                    <Pen style={{ cursor: "pointer" }} />
-                  </Link>
+                    <Link href={`/edit?id=${buch.id}`} passHref>
+                      <Pen style={{ cursor: "pointer" }} />
+                    </Link>
                   )}
                   {writeAccess && (
-                  <Trash
-                    style={{ cursor: "pointer", marginLeft: "10px" }}
-                    aria-label="delete"
-                    color="secondary"
-                    onClick={() => {
-                      handleDeleteRow(buch.id);
-                    }}
-                  />
-                    )}
+                    <Trash
+                      style={{ cursor: "pointer", marginLeft: "10px" }}
+                      aria-label="delete"
+                      color="secondary"
+                      onClick={() => {
+                        handleDeleteRow(buch.id);
+                      }}
+                    />
+                  )}
                 </td>
               </tr>
             ))}

@@ -1,7 +1,7 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../auth/useAuth';
-import { Alert, Spinner } from 'react-bootstrap';
+"use client";
+import { useEffect, useState } from "react";
+import { useAuth } from "../auth/useAuth";
+import { Alert, Spinner } from "react-bootstrap";
 
 const RouteGuard = ({ children }: { children: React.ReactNode }) => {
   const { writeAccess } = useAuth();
@@ -19,7 +19,7 @@ const RouteGuard = ({ children }: { children: React.ReactNode }) => {
 
   if (checkingAccess) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
         <Spinner animation="border" role="status">
           <span className="visually-hidden">Laden...</span>
         </Spinner>

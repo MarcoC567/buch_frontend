@@ -1,12 +1,11 @@
-"use client"
+"use client";
 import { Alert, Badge, Button } from "react-bootstrap";
 import { useAuth } from "../api/auth/useAuth";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-
 const Login = () => {
-    const { login } = useAuth();
+  const { login } = useAuth();
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -21,7 +20,9 @@ const Login = () => {
         router.push("/");
         console.log("ok");
       } else {
-        setErrorMessage("Ungültiger Username oder Passwort. Bitte bersuche es erneut.");
+        setErrorMessage(
+          "Ungültiger Username oder Passwort. Bitte bersuche es erneut."
+        );
       }
     } catch (error) {
       console.error(error);
@@ -37,13 +38,16 @@ const Login = () => {
         marginTop: "50px",
       }}
     >
-      <div className="card border-primary" style={{ width: "450px", height: "500px"}}>
+      <div
+        className="card border-primary"
+        style={{ width: "450px", height: "500px" }}
+      >
         <div className="card-body">
           <h5 className="card-title text-center mb-5">Login</h5>
           <div className="mb-4" style={{ maxWidth: "500px", margin: "0 auto" }}>
             <Badge
               className="mb-3"
-              style={{ display: "inline-block", width: "auto"}}
+              style={{ display: "inline-block", width: "auto" }}
             >
               Username
             </Badge>
@@ -69,11 +73,17 @@ const Login = () => {
             />
           </div>
           <div className="text-center mt-4">
-            <Button variant="primary" style={{ minWidth: "120px" }} onClick={handleLogin}>
+            <Button
+              variant="primary"
+              style={{ minWidth: "120px" }}
+              onClick={handleLogin}
+            >
               Login
             </Button>
             {errorMessage && (
-                <Alert variant="danger" className="mt-3">{errorMessage}</Alert>
+              <Alert variant="danger" className="mt-3">
+                {errorMessage}
+              </Alert>
             )}
           </div>
         </div>
