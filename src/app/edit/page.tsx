@@ -92,7 +92,7 @@ const EditBook = () => {
 
     const rabattValue = parseFloat(rabatt);
     if (rabattValue > 1) {
-      setError("Rabatt darf nicht größer als 1 sein.");
+      setError("Bitte geben Sie einen Rabatt zwischen 0 und 1 an.");
       setLoading(false);
       return;
     }
@@ -205,6 +205,7 @@ const EditBook = () => {
                   value={preis}
                   onChange={(e) => setPreis(e.target.value)}
                   min={0}
+                  step="0.01"
                   required
                 />
               </div>
@@ -238,7 +239,6 @@ const EditBook = () => {
                 </select>
               </div>
 
-              {/* Datum */}
               <div className="mb-4">
                 <Badge className="mb-3">Datum</Badge>
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -248,7 +248,7 @@ const EditBook = () => {
                     className="form-control"
                     placeholder="Datum angeben"
                     style={{
-                      paddingRight: '40px', // Platz für das Icon schaffen
+                      paddingRight: '40px', 
                       border: '1px solid #a259ff',
                       borderRadius: '8px',
                       fontSize: '14px',
@@ -257,7 +257,6 @@ const EditBook = () => {
                     value={datum}
                     onChange={(e) => setDatum(e.target.value)}
                   />
-                  {/* Kalendersymbol */}
                   <FaCalendarAlt
                     style={{
                       position: 'absolute',
@@ -266,11 +265,10 @@ const EditBook = () => {
                       cursor: 'pointer',
                     }}
                     onClick={() => {
-                      // "Klicken" auf das Datumseingabefeld simulieren
                       const dateInput = document.querySelector('input[name="datum"]') as HTMLInputElement;
                       if (dateInput) {
-                        dateInput.showPicker?.(); // Moderne Browser unterstützen showPicker()
-                        dateInput.focus(); // Fallback, um Kalender zu öffnen
+                        dateInput.showPicker?.(); 
+                        dateInput.focus(); 
                       }
                     }}
                   />
