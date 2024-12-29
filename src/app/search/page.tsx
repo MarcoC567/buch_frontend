@@ -326,7 +326,7 @@ const BookSearchPage = () => {
                     <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
                   </Link>
                   {writeAccess && (
-                  <Link href={`/details/${buch.id}/edit`} passHref>
+                  <Link href={`/edit?id=${buch.id}`} passHref>
                     <Pen style={{ cursor: "pointer" }} />
                   </Link>
                   )}
