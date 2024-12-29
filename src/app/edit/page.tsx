@@ -5,6 +5,7 @@ import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Badge, Button, Alert, Spinner } from "react-bootstrap";
 import RouteGuard from "../api/auth/routeGuard";
+import { FaCalendarAlt } from 'react-icons/fa';
 
 const EditBook = () => {
   const searchParams = useSearchParams();
@@ -237,15 +238,43 @@ const EditBook = () => {
                 </select>
               </div>
 
+              {/* Datum */}
               <div className="mb-4">
                 <Badge className="mb-3">Datum</Badge>
-                <input
-                  type="date"
-                  name="datum"
-                  className="form-control"
-                  value={datum}
-                  onChange={(e) => setDatum(e.target.value)}
-                />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="date"
+                    name="datum"
+                    className="form-control"
+                    placeholder="Datum angeben"
+                    style={{
+                      paddingRight: '40px', // Platz für das Icon schaffen
+                      border: '1px solid #a259ff',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      color: '#6c757d',
+                    }}
+                    value={datum}
+                    onChange={(e) => setDatum(e.target.value)}
+                  />
+                  {/* Kalendersymbol */}
+                  <FaCalendarAlt
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      color: '#a259ff',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => {
+                      // "Klicken" auf das Datumseingabefeld simulieren
+                      const dateInput = document.querySelector('input[name="datum"]') as HTMLInputElement;
+                      if (dateInput) {
+                        dateInput.showPicker?.(); // Moderne Browser unterstützen showPicker()
+                        dateInput.focus(); // Fallback, um Kalender zu öffnen
+                      }
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="mb-4">
@@ -287,24 +316,42 @@ const EditBook = () => {
                 />
               </div>
 
-              <div className="mb-4">
-                <Badge className="mb-3">Lieferbar</Badge>
-                <input
-                  type="checkbox"
-                  name="lieferbar"
-                  className="form-check-input"
-                  checked={lieferbar}
-                  onChange={(e) => setLieferbar(e.target.checked)}
-                  id="lieferbarCheckbox"
-                />
-                <label
-                  htmlFor="lieferbarCheckbox"
-                  className="form-check-label"
-                  style={{ marginLeft: "10px" }}
+              <div
+                className="mb-4"
+                style={{
+                  display: "inline-block",
+                  width: "100%",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
+                  paddingBottom: "5px",
+                }}
+                >
+                <Badge
+                  className="mb-3"
+                  style={{ marginTop: "5px", marginLeft: "5px" }}
                 >
                   Lieferbar
-                </label>
+                </Badge>
+                <div className="form-check mx-3" style={{ marginBottom: "10px" }}>
+                  <input
+                    type="checkbox"
+                    name="lieferbar"
+                    className="form-check-input"
+                    checked={lieferbar}
+                    onChange={(e) => setLieferbar(e.target.checked)}
+                    id="lieferbarCheckbox"
+                  />
+                  <label
+                    htmlFor="lieferbarCheckbox"
+                    className="form-check-label"
+                    style={{ color: "black" }}
+                  >
+                    Lieferbar
+                  </label>
+                </div>
               </div>
+
+
 
               {error && (
                 <Alert variant="danger" className="mt-3">
