@@ -3,8 +3,12 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',  // Alle Anfragen an `/api/` abfangen
-        destination: 'https://localhost:3000/:path*',  // Weiterleiten an den Backend-Server
+        source: '/api/graphql',  
+        destination: 'https://localhost:3000/graphql', 
+      },
+      {
+        source: '/api/:path*',  
+        destination: 'https://localhost:3000/:path*',
       },
     ];
   },

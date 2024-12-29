@@ -1,21 +1,15 @@
 "use client";
 
-// Run:
-// npm install react-bootstrap-icons
-// TODO: Nur wenn eingeloggt, soll die Bearbeiten-Funktion sichtbar sein
-// TODO: Titel Type
-
-import React, { useState, useEffect } from "react";
+import React, {  useState } from "react";
 import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
 import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
-import { InfoCircle, Pen } from "react-bootstrap-icons";
+import { InfoCircle, Pen, Trash } from "react-bootstrap-icons";
 import Link from "next/link";
 
 interface Buch {
   id: number;
   isbn: string;
-  version: number;
   rating: string;
   titel: { titel: string };
   art: string;
@@ -23,163 +17,148 @@ interface Buch {
   schlagwoerter: string[];
 }
 
-interface BuchDetails {
-  isbn: string;
-  version: number;
-  rating?: string;
-  art: string;
-  preis: number;
-  lieferbar: boolean;
-  datum: string;
-  homepage: string;
-  schlagwoerter: string[];
-  titel: string;
-  rabatt: string;
-}
+const DELETE_BOOK_MUTATION = `
+  mutation deleteBook($id: ID!) {
+    delete(id: $id)
+  }
+`;
 
 const BookSearchPage = () => {
   const { writeAccess } = useAuth();
-  const [buecher, setBuecher] = useState<Buch[]>([]); // Liste aller Bücher
-  const [buchDetails, setBuchDetails] = useState<BuchDetails | null>(null); // Details eines Buches
-  const [sucheISBN, setSucheISBN] = useState<string>(""); // ID für die Buchsuche
+  const [filteredBooks, setFilteredBooks] = useState<Buch[]>([]); // Nur die Suchergebnisse
+  const [sucheISBN, setSucheISBN] = useState<string>(""); // ISBN für die Buchsuche
   const [sucheTitel, setSucheTitel] = useState<string>(""); // Titel für die Buchsuche
-  const [selectedRatingOption, setSelectedRatingOption] = useState("");
-  const [isJavaScript, setIsJavaScript] = useState(false);
-  const [isTypeScript, setIsTypeScript] = useState(false);
-  const [selectedBuchArt, setSelectedBuchArt] = useState("");
-  const [isLieferbar, setIsLieferbar] = useState(false);
+  const [sucheRating, setSucheRating] = useState(""); // Rating für die Buchsuche
+  const [istJavaScript, setIstJavaScript] = useState(false);
+  const [istTypeScript, setIstTypeScript] = useState(false);
+  const [istPython, setIstPython] = useState(false);
+  const [sucheBuchArt, setSucheBuchArt] = useState<string>("");
+  const [istLieferbar, setIstLieferbar] = useState<boolean>(false);
+  const { token } = useAuth();
   const [error, setError] = useState(false);
 
-  const fetchAllBooks = async () => {
+  const handleSearch = async () => {
     try {
+      // GraphQL Query mit einem gemeinsamen "suchkriterien"-Input
+      const query = `
+        query getFilteredBooks($suchkriterien: SuchkriterienInput) {
+          buecher(suchkriterien: $suchkriterien) {
+            id
+            isbn
+            rating
+            art
+            lieferbar
+            schlagwoerter
+            titel {
+              titel
+            }
+          }
+        }
+      `;
+  
+      // Variablen für die Suchkriterien zusammenstellen
+      interface Suchkriterien {
+        isbn?: string;
+        titel?: string;
+        rating?: number;
+        schlagwoerter?: string[];
+        art?: string;
+        lieferbar?: boolean;
+      }
+
+      const suchkriterien: Suchkriterien = {};
+      if (sucheISBN) suchkriterien.isbn = sucheISBN;
+      if (sucheTitel) suchkriterien.titel = sucheTitel;
+      if (sucheRating) suchkriterien.rating = parseInt(sucheRating, 10);
+      if (istJavaScript || istTypeScript || istPython) {
+        const schlagwoerter = [
+          ...(istJavaScript ? ["JAVASCRIPT"] : []),
+          ...(istTypeScript ? ["TYPESCRIPT"] : []),
+          ...(istPython ? ["PYTHON"] : []),
+        ];
+        if (schlagwoerter.length > 0) {
+          suchkriterien.schlagwoerter = schlagwoerter;
+          console.log("Schlagwörter:", schlagwoerter); // Logge die Schlagwörter
+        }
+      }
+      if (sucheBuchArt) suchkriterien.art = sucheBuchArt;
+      if (istLieferbar) suchkriterien.lieferbar = istLieferbar;
+  
+      // GraphQL-Abfrage ausführen
       const response = await axios.post(
         "https://localhost:3000/graphql",
         {
-          query: `
-            query {
-              buecher {
-                id
-                isbn
-                rating
-                art
-                lieferbar
-                schlagwoerter
-                titel {
-                  titel
-                }
-              }
-            }
-          `,
+          query,
+          variables: { suchkriterien },
         },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
-      console.log("API Response:", response.data);
   
-      const fetchedBooks = response.data.data.buecher.map((buch: Buch) => {
-        console.log("Vor return von fetchedBooks: ",buch);
-  
-        return {
-          id: buch.id,
-          isbn: buch.isbn,
-          rating: buch.rating,
-          titel: buch.titel,
-          art: buch.art,
-          lieferbar: buch.lieferbar,
-          schlagwoerter: buch.schlagwoerter || [],
-        };
-      });
-      console.log("nach fetchedBooks: ", fetchedBooks);
-      setBuecher(fetchedBooks);
+      const buecher = response.data.data.buecher || [];
+      setFilteredBooks(buecher);
+      setError(buecher.length === 0);
     } catch (err) {
-      console.error("Error fetching buecher:", err);
+      console.error("Error fetching filtered books:", err);
       setError(true);
     }
   };
   
 
-  // Reset filters and book details
   const resetFilters = () => {
     setSucheISBN("");
     setSucheTitel("");
-    setSelectedRatingOption("");
-    setIsJavaScript(false);
-    setIsTypeScript(false);
-    setSelectedBuchArt("");
-    setIsLieferbar(false);
-    setBuchDetails(null);
+    setFilteredBooks([]);
+    setSucheRating("");
+    setIstJavaScript(false);
+    setIstTypeScript(false);
+    setIstPython(false);
+    setSucheBuchArt("");
+    setIstLieferbar(false);
     setError(false);
-    fetchAllBooks();
   };
 
-  // Handle search
-  const handleSearch = () => {
-    let filteredBooks = [...buecher]; // Kopie der Bücherliste
-  
-    // ISBN-Filter
-    if (sucheISBN) {
-      filteredBooks = filteredBooks.filter((book) =>
-        book.isbn.includes(sucheISBN) // ISBN kann als String oder Zahl vorliegen
-      );
-    }
-  
-    // Titel-Filter
-    if (sucheTitel) {
-      filteredBooks = filteredBooks.filter((book) =>
-        book.titel.titel.toLowerCase().includes(sucheTitel.toLowerCase()) // Titel vergleichen
-      );
-    }
-
-    // Rating-Filter
-    if (selectedRatingOption) {
-      const selectedRating = Number(selectedRatingOption);  // Convert to number directly
-      filteredBooks = filteredBooks.filter(
-        (book) => Number(book.rating) === selectedRating
-      );
-    }
-
-    // JavaScript/TypeScript-Filter
-    if (isJavaScript || isTypeScript) {
-      filteredBooks = filteredBooks.filter((book) => {
-        const lowerCaseSchlagwoerter = book.schlagwoerter.map((tag) => tag.toLowerCase());
-        return (
-          (isJavaScript && lowerCaseSchlagwoerter.includes("javascript")) ||
-          (isTypeScript && lowerCaseSchlagwoerter.includes("typescript"))
-        );
-      });
-    }
-
-    // Buchformat-Filter (auf Grundlage von 'art')
-    if (selectedBuchArt) {
-      filteredBooks = filteredBooks.filter((book) => book.art === selectedBuchArt); // Werte wie "EPUB", "HARDCOVER"
-    }
-
-    // Lieferbarkeit-Filter
-    if (isLieferbar) {
-      filteredBooks = filteredBooks.filter((book) => book.lieferbar); // Einfacher Wahrheitswert-Check
-    }
-
-    // Fehlerstatus setzen, wenn keine Bücher gefunden werden
-    setBuecher(filteredBooks);
-    setError(filteredBooks.length === 0);
-  };
-  
-  
-
-  // Trigger search with Enter key
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
       handleSearch();
     }
   };
 
-  useEffect(() => {
-    fetchAllBooks();
-  }, []);
-
-
+  const handleDeleteRow = async (id: number) => {
+    try {
+      const response = await axios.post(
+        "https://localhost:3000/graphql",
+        {
+          query: DELETE_BOOK_MUTATION,
+          variables: { id },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Authentifizierungstoken hinzufügen
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      const { data, errors } = response.data;
+  
+      if (errors && errors.length > 0) {
+        throw new Error(errors[0].message); // Fehler vom Server anzeigen
+      }
+  
+      const success = data?.delete;
+      if (success) {
+        // Entferne das Buch aus der lokalen Liste
+        setFilteredBooks((prevBooks) => prevBooks.filter((buch) => buch.id !== id));
+        alert("Das Buch wurde erfolgreich gelöscht.");
+      } else {
+        throw new Error("Fehler beim Löschen des Buches.");
+      }
+    } catch (err) {
+      console.error("Fehler beim Löschen des Buches:", err);
+      alert("Das Buch konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.");
+    }
+  };
+  
   const renderStars = (rating: string) => {
     const ratingValue = parseFloat(rating);
     const fullStars = Math.floor(ratingValue);
@@ -204,8 +183,9 @@ const BookSearchPage = () => {
       <h1>Buchsuche</h1>
       <Form>
         <Form.Group className="mb-4">
-          <Badge className="mb-3">ISBN</Badge>
+          <Badge>ISBN</Badge>
           <Form.Control
+            style={{ fontSize: "0.9rem", marginTop: "5px" }}
             type="text"
             placeholder="ISBN des gesuchten Buchs"
             value={sucheISBN}
@@ -214,8 +194,9 @@ const BookSearchPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge className="mb-3">Titel</Badge>
+          <Badge>Titel</Badge>
           <Form.Control
+            style={{ fontSize: "0.9rem", marginTop: "5px" }}
             type="text"
             placeholder="Titel des gesuchten Buchs"
             value={sucheTitel}
@@ -224,10 +205,11 @@ const BookSearchPage = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge className="mb-3">Rating</Badge>
+          <Badge>Rating</Badge>
           <Form.Select
-            value={selectedRatingOption}
-            onChange={(e) => setSelectedRatingOption(e.target.value)}
+            style={{ fontSize: "0.9rem", marginTop: "5px" }}
+            value={sucheRating}
+            onChange={(e) => setSucheRating(e.target.value)}
             >
             <option value="">Wählen Sie ein Rating</option>
             {[1, 2, 3, 4, 5].map((star) => (
@@ -236,35 +218,42 @@ const BookSearchPage = () => {
           </Form.Select>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge className="mb-3">JavaScript oder TypeScript</Badge>
-          <div>
+          <Badge>Schlagwörter</Badge>
+          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="checkbox"
               label={<label htmlFor="javascript-checkbox">JavaScript</label>}
               id="javascript-checkbox"
-              checked={isJavaScript}
-              onChange={(e) => setIsJavaScript(e.target.checked)}
+              checked={istJavaScript}
+              onChange={(e) => setIstJavaScript(e.target.checked)}
             />
             <Form.Check
               type="checkbox"
               label={<label htmlFor="typescript-checkbox">TypeScript</label>}
               id="typescript-checkbox"
-              checked={isTypeScript}
-              onChange={(e) => setIsTypeScript(e.target.checked)}
+              checked={istTypeScript}
+              onChange={(e) => setIstTypeScript(e.target.checked)}
+            />
+            <Form.Check
+              type="checkbox"
+              label={<label htmlFor="python-checkbox">Python</label>}
+              id="Python-checkbox"
+              checked={istPython}
+              onChange={(e) => setIstPython(e.target.checked)}
             />
           </div>
         </Form.Group>
         <Form.Group className="mb-3">
-          <Badge className="mb-3">Buchformat</Badge>
-          <div>
+          <Badge>Buchformat</Badge>
+          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="radio"
               name="bookFormat"
               label={<label htmlFor="epub-format">EPUB</label>}
               value="EPUB"
               id="epub-format"
-              checked={selectedBuchArt === "EPUB"}
-              onChange={(e) => setSelectedBuchArt(e.target.value)}
+              checked={sucheBuchArt === "EPUB"}
+              onChange={(e) => setSucheBuchArt(e.target.value)}
             />
             <Form.Check
               type="radio"
@@ -272,8 +261,8 @@ const BookSearchPage = () => {
               label={<label htmlFor="hardcover-format">Hardcover</label>}
               value="HARDCOVER"
               id="hardcover-format"
-              checked={selectedBuchArt === "HARDCOVER"}
-              onChange={(e) => setSelectedBuchArt(e.target.value)}
+              checked={sucheBuchArt === "HARDCOVER"}
+              onChange={(e) => setSucheBuchArt(e.target.value)}
             />
             <Form.Check
               type="radio"
@@ -281,24 +270,24 @@ const BookSearchPage = () => {
               label={<label htmlFor="paperback-format">Paperback</label>}
               value="PAPERBACK"
               id="paperback-format"
-              checked={selectedBuchArt === "PAPERBACK"}
-              onChange={(e) => setSelectedBuchArt(e.target.value)}
+              checked={sucheBuchArt === "PAPERBACK"}
+              onChange={(e) => setSucheBuchArt(e.target.value)}
             />
           </div>
         </Form.Group>
         <Form.Group className="mb-">
-          <Badge className="mb-3">Lieferbarkeit</Badge>
-          <div>
+          <Badge>Lieferbarkeit</Badge>
+          <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
               type="checkbox"
               label={<label htmlFor="lieferbar-checkbox">Nur lieferbare Bücher</label>}
               id="lieferbar-checkbox"
-              checked={isLieferbar}
-              onChange={(e) => setIsLieferbar(e.target.checked)}
+              checked={istLieferbar}
+              onChange={(e) => setIstLieferbar(e.target.checked)}
             />
           </div>
         </Form.Group>
-        <div className="mt-4">
+        <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
           <Button variant="primary" onClick={handleSearch} className="me-2">
             Suchen
           </Button>
@@ -314,55 +303,49 @@ const BookSearchPage = () => {
         </Alert>
       )}
 
-      {buchDetails && (
-        <div className="mt-4">
-          <h3>Details zum Buch</h3>
-          <p><strong>ISBN:</strong> {buchDetails.isbn}</p>
-          <p><strong>Titel:</strong> {buchDetails.titel}</p>
-          <p><strong>Version:</strong> {buchDetails.version}</p>
-          <p><strong>Rating:</strong> {buchDetails.rating}</p>
-          <p><strong>Art:</strong> {buchDetails.art}</p>
-          <p><strong>Preis:</strong> {buchDetails.preis} €</p>
-          <p><strong>Lieferbar:</strong> {buchDetails.lieferbar ? "Ja" : "Nein"}</p>
-          <p><strong>Datum:</strong> {buchDetails.datum}</p>
-          <p><strong>Homepage:</strong> <a href={buchDetails.homepage}>{buchDetails.homepage}</a></p>
-          <p><strong>Schlagwörter:</strong> {buchDetails.schlagwoerter.join(", ")}</p>
-          <p><strong>Rabatt:</strong> {buchDetails.rabatt}</p>
-        </div>
-      )}
-
-      <h3 className="mt-5">Liste aller Bücher</h3>
-      <Table striped bordered hover className="mt-4">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>ISBN</th>
-            <th>Titel</th>
-            <th>Rating</th>
-            <th>Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {buecher.map((buecher) => (
-            <tr key={buecher.id}>
-              <td>{buecher.id}</td>
-              <td>{buecher.isbn}</td>
-              <td>{buecher.titel.titel}</td>
-              <td>{renderStars(buecher.rating)}</td>
-              <td>
-                <Link href={`/details?id=${buecher.id}`} passHref>
-                  <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
-                </Link>
-                {writeAccess && (
-                  <Link href={`/details/${buecher.id}/edit`} passHref>
+      {filteredBooks.length > 0 && (
+        <Table striped bordered hover className="mt-4">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>ISBN</th>
+              <th>Titel</th>
+              <th>Rating</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredBooks.map((buch) => (
+              <tr key={buch.id}>
+                <td>{buch.id}</td>
+                <td>{buch.isbn}</td>
+                <td>{buch.titel.titel}</td>
+                <td>{renderStars(buch.rating)}</td>
+                <td>
+                  <Link href={`/details?id=${buch.id}`} passHref>
+                    <InfoCircle style={{ cursor: "pointer", marginRight: "10px" }} />
+                  </Link>
+                  {writeAccess && (
+                  <Link href={`/details/${buch.id}/edit`} passHref>
                     <Pen style={{ cursor: "pointer" }} />
                   </Link>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+                  )}
+                  {writeAccess && (
+                  <Trash
+                    style={{ cursor: "pointer", marginLeft: "10px" }}
+                    aria-label="delete"
+                    color="secondary"
+                    onClick={() => {
+                      handleDeleteRow(buch.id);
+                    }}
+                  />
+                    )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </div>
   );
 };

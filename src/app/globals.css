@@ -40,3 +40,9 @@ a {
     color-scheme: dark;
   }
 }
+
+.border-dashed {
+  border-style: dashed;
+  color: rgb(73, 139, 238);
+}
+
