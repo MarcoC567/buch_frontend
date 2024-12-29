@@ -1,17 +1,19 @@
-'use client';
+"use client";
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
+import { Badge, Button, Alert, Spinner } from "react-bootstrap";
+import RouteGuard from "../api/auth/routeGuard";
 
 const EditBook = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const id = searchParams.get("id"); // Buch-ID aus der URL abrufen
+  const id = searchParams.get("id");
 
-  const [buch, setBuch] = useState<unknown>(null); // Buch-Daten
-  const [loading, setLoading] = useState(true); // Ladespinner
-  const [error, setError] = useState<string | null>(null); // Fehlerbehandlung
+  const [, setBuch] = useState<unknown>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Formulareingaben
   const [isbn, setIsbn] = useState("");
@@ -22,19 +24,17 @@ const EditBook = () => {
   const [lieferbar, setLieferbar] = useState(false);
   const [rabatt, setRabatt] = useState("");
   const [rating, setRating] = useState(0);
-  const [version, setVersion] = useState(0); // Version für das Buch
-  const [token, setToken] = useState(''); // Token für Authentifizierung
-  const [schlagwoerter, setSchlagwoerter] = useState(""); // Schlagwörter als Text eingeben
+  const [version, setVersion] = useState(0);
+  const [token, setToken] = useState("");
+  const [schlagwoerter, setSchlagwoerter] = useState("");
 
   useEffect(() => {
-    // Token aus dem LocalStorage oder einer anderen Quelle laden
-    setToken(localStorage.getItem('token') || '');
+    setToken(localStorage.getItem("token") || "");
     if (id) {
       fetchBookData(id);
     }
   }, [id]);
 
-  // Buchdaten vom Server laden
   const fetchBookData = async (id: string) => {
     try {
       setLoading(true);
@@ -72,7 +72,7 @@ const EditBook = () => {
         setLieferbar(bookData.lieferbar || false);
         setRabatt(bookData.rabatt || 0);
         setRating(bookData.rating || 0);
-        setVersion(bookData.version || 0); // Version setzen
+        setVersion(bookData.version || 0);
       } else {
         setError("Buch konnte nicht gefunden werden.");
       }
@@ -84,13 +84,11 @@ const EditBook = () => {
     }
   };
 
-  // Buchdaten bearbeiten
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null); // Fehlernachricht zurücksetzen
+    setError(null);
 
-    // Rabatt validieren
     const rabattValue = parseFloat(rabatt);
     if (rabattValue > 1) {
       setError("Rabatt darf nicht größer als 1 sein.");
@@ -98,29 +96,28 @@ const EditBook = () => {
       return;
     }
 
-    // Schlagwörter in Array umwandeln
-    const schlagwoerterArray = schlagwoerter.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+    const schlagwoerterArray = schlagwoerter
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag !== "");
 
-    // Input-Objekt für die GraphQL-Mutation vorbereiten
     const input = {
-      id,                // Buch-ID aus der URL
-      version,           // Version (wird um 1 erhöht, wenn ein neues Update gemacht wird)
-      isbn,              // ISBN (diese wird mit einem Wert gefüllt, den du eventuell im Formular erfasst hast)
-      rating,            // Rating (auch aus dem Formular)
-      art: art || 'HARDCOVER',  // Art des Buches, Standardwert 'HARDCOVER'
-      preis: parseFloat(preis), // Preis (mit parseFloat sicherstellen, dass es eine Zahl ist)
-      rabatt: rabattValue, // Rabatt (als Zahl)
-      lieferbar,         // Lieferbar-Status (Checkbox)
-      datum,             // Veröffentlichungsdatum
-      homepage,          // Homepage-URL
-      schlagwoerter: schlagwoerterArray, // Schlagwörter (falls vorhanden)
+      id,
+      version,
+      isbn,
+      rating,
+      art: art || "HARDCOVER",
+      preis: parseFloat(preis),
+      rabatt: rabattValue,
+      lieferbar,
+      datum,
+      homepage,
+      schlagwoerter: schlagwoerterArray,
     };
-
-    console.log("GraphQL Input:", input); // Debugging-Log
 
     try {
       const response = await axios.post(
-        'https://localhost:3000/graphql',
+        "https://localhost:3000/graphql",
         {
           query: `
             mutation updateBook($input: BuchUpdateInput!) {
@@ -129,149 +126,207 @@ const EditBook = () => {
               }
             }
           `,
-          variables: { input }, // Die Variablen für die Mutation
+          variables: { input },
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Token für Authentifizierung
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       const { data, errors } = response.data;
 
-      // Fehlerbehandlung
       if (errors && errors.length > 0) {
         throw new Error(errors[0].message);
       }
 
-      // Erfolgsmeldung und Weiterleitung
       alert(`Buch erfolgreich bearbeitet! Neue Version: ${data.update.version}`);
-      router.push('/'); // Zurück zur Hauptseite oder einer anderen Route
-
+      router.push("/");
     } catch (err: unknown) {
-      // Fehlerbehandlung
       if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Server-Fehler');
+        setError(err.response?.data?.message || "Server-Fehler");
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Ein unbekannter Fehler ist aufgetreten.');
+        setError("Ein unbekannter Fehler ist aufgetreten.");
       }
     } finally {
-      setLoading(false); // Ladevorgang beenden
+      setLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <Container className="d-flex justify-content-center align-items-center vh-100">
+      <div className="d-flex justify-content-center align-items-center vh-100">
         <Spinner animation="border" variant="primary" />
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container style={{ maxWidth: "600px", marginTop: "50px" }}>
-      <h2>Bearbeite Buch</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
+    <RouteGuard>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "5px",
+        }}
+      >
+        <div
+          className="card border-primary"
+          style={{ maxWidth: "100%", width: "600px", height: "auto" }}
+        >
+          <div className="card-body">
+            <h5 className="card-title text-center mb-5">Buch bearbeiten</h5>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <Badge className="mb-3 default-color">ISBN</Badge>
+                <input
+                  type="text"
+                  name="isbn"
+                  className="form-control"
+                  placeholder="ISBN"
+                  value={isbn}
+                  onChange={(e) => setIsbn(e.target.value)}
+                  required
+                />
+              </div>
 
-      {buch ? (
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="isbn">
-            <Form.Label>ISBN</Form.Label>
-            <Form.Control
-              type="text"
-              value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Preis</Badge>
+                <input
+                  type="number"
+                  name="preis"
+                  className="form-control"
+                  placeholder="Preis"
+                  value={preis}
+                  onChange={(e) => setPreis(e.target.value)}
+                  min={0}
+                  required
+                />
+              </div>
 
-          <Form.Group controlId="preis">
-            <Form.Label>Preis</Form.Label>
-            <Form.Control
-              type="number"
-              value={preis}
-              onChange={(e) => setPreis(e.target.value)}
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Rabatt</Badge>
+                <input
+                  type="number"
+                  name="rabatt"
+                  className="form-control"
+                  placeholder="Rabatt"
+                  value={rabatt}
+                  onChange={(e) => setRabatt(e.target.value)}
+                  min={0}
+                  max={1}
+                  step="0.01"
+                />
+              </div>
 
-          <Form.Group controlId="art">
-            <Form.Label>Art</Form.Label>
-            <Form.Control
-              type="text"
-              value={art}
-              onChange={(e) => setArt(e.target.value)}
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Art</Badge>
+                <select
+                  name="art"
+                  className="form-control"
+                  value={art}
+                  onChange={(e) => setArt(e.target.value)}
+                >
+                  <option value="HARDCOVER">HARDCOVER</option>
+                  <option value="PAPERBACK">PAPERBACK</option>
+                  <option value="EBOOK">EBOOK</option>
+                </select>
+              </div>
 
-          <Form.Group controlId="datum">
-            <Form.Label>Datum</Form.Label>
-            <Form.Control
-              type="date"
-              value={datum}
-              onChange={(e) => setDatum(e.target.value)}
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Datum</Badge>
+                <input
+                  type="date"
+                  name="datum"
+                  className="form-control"
+                  value={datum}
+                  onChange={(e) => setDatum(e.target.value)}
+                />
+              </div>
 
-          <Form.Group controlId="homepage">
-            <Form.Label>Homepage</Form.Label>
-            <Form.Control
-              type="text"
-              value={homepage}
-              onChange={(e) => setHomepage(e.target.value)}
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Homepage</Badge>
+                <input
+                  type="text"
+                  name="homepage"
+                  className="form-control"
+                  placeholder="Homepage"
+                  value={homepage}
+                  onChange={(e) => setHomepage(e.target.value)}
+                />
+              </div>
 
-          <Form.Group controlId="lieferbar">
-            <Form.Check
-              type="checkbox"
-              label="Lieferbar"
-              checked={lieferbar}
-              onChange={(e) => setLieferbar(e.target.checked)}
-            />
-          </Form.Group>
 
-          <Form.Group controlId="rabatt">
-            <Form.Label>Rabatt</Form.Label>
-            <Form.Control
-              type="number"
-              value={rabatt}
-              onChange={(e) => setRabatt(e.target.value)}
-              max="1" // Maximale Grenze für Rabatt
-              step="0.01" // Dezimalstellen für Rabatt
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Rating</Badge>
+                <input
+                  type="number"
+                  name="rating"
+                  className="form-control"
+                  placeholder="Rating"
+                  value={rating}
+                  onChange={(e) => setRating(parseInt(e.target.value))}
+                  min={0}
+                  max={5}
+                />
+              </div>
 
-          <Form.Group controlId="rating">
-            <Form.Label>Rating</Form.Label>
-            <Form.Control
-              type="number"
-              value={rating}
-              onChange={(e) => setRating(parseInt(e.target.value))}
-              max={5}
-              min={0}
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Schlagwörter</Badge>
+                <input
+                  type="text"
+                  name="schlagwoerter"
+                  className="form-control"
+                  placeholder="Schlagwörter mit Komma getrennt"
+                  value={schlagwoerter}
+                  onChange={(e) => setSchlagwoerter(e.target.value)}
+                />
+              </div>
 
-          <Form.Group controlId="schlagwoerter">
-            <Form.Label>Schlagwörter</Form.Label>
-            <Form.Control
-              type="text"
-              value={schlagwoerter}
-              onChange={(e) => setSchlagwoerter(e.target.value)}
-              placeholder="Schlagwörter mit Komma getrennt"
-            />
-          </Form.Group>
+              <div className="mb-4">
+                <Badge className="mb-3">Lieferbar</Badge>
+                <input
+                  type="checkbox"
+                  name="lieferbar"
+                  className="form-check-input"
+                  checked={lieferbar}
+                  onChange={(e) => setLieferbar(e.target.checked)}
+                  id="lieferbarCheckbox"
+                />
+                <label
+                  htmlFor="lieferbarCheckbox"
+                  className="form-check-label"
+                  style={{ marginLeft: "10px" }}
+                >
+                  Lieferbar
+                </label>
+              </div>
 
-          <Button variant="primary" type="submit" style={{ marginTop: "20px" }}>
-            Speichern
-          </Button>
-        </Form>
-      ) : (
-        <Alert variant="warning">Buch wurde nicht gefunden.</Alert>
-      )}
-    </Container>
+              {error && (
+                <Alert variant="danger" className="mt-3">
+                  {error}
+                </Alert>
+              )}
+
+              <div className="text-center mt-4">
+                <Button
+                  variant="primary"
+                  style={{ minWidth: "120px" }}
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? "Lade..." : "Speichern"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </RouteGuard>
   );
 };
 
