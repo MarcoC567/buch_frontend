@@ -250,13 +250,6 @@ const EditBook = () => {
                     name="datum"
                     className="form-control"
                     placeholder="Datum angeben"
-                    style={{
-                      paddingRight: "40px",
-                      border: "1px solid #a259ff",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      color: "#6c757d",
-                    }}
                     value={datum}
                     onChange={(e) => setDatum(e.target.value)}
                   />
@@ -264,7 +257,7 @@ const EditBook = () => {
                     style={{
                       position: "absolute",
                       right: "10px",
-                      color: "#a259ff",
+                      color: "#0d6efd",
                       cursor: "pointer",
                     }}
                     onClick={() => {

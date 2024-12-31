@@ -7,6 +7,7 @@ import { Badge, Button, Form, Table, Alert } from "react-bootstrap";
 import { InfoCircle, Pen, Trash } from "react-bootstrap-icons";
 import Link from "next/link";
 import { api } from "../config";
+import renderStars from "../utils/stars";
 
 interface Buch {
   id: number;
@@ -157,25 +158,6 @@ const BookSearchPage = () => {
         "Das Buch konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
       );
     }
-  };
-
-  const renderStars = (rating: string) => {
-    const ratingValue = parseFloat(rating);
-    const fullStars = Math.floor(ratingValue);
-    const hasHalfStar = ratingValue % 1 !== 0;
-
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push("★");
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push("☆");
-      } else {
-        stars.push("☆");
-      }
-    }
-
-    return stars.join(" ");
   };
 
   return (

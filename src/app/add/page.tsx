@@ -7,6 +7,7 @@ import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
 import RouteGuard from "../api/auth/routeGuard";
 import { api } from "../config";
+import { FaCalendarAlt } from "react-icons/fa";
 
 const ADD_BOOK_MUTATION = `
   mutation createBook($input: BuchInput!) {
@@ -248,74 +249,96 @@ const BookForm = () => {
                 </div>
 
                 <div style={{ width: "40%" }}>
-                  <div
-                    className="mb-4 border-dashed rounded"
-                    style={{
-                      display: "inline-block",
-                      width: "100%",
-                    }}
-                  >
-                    <Badge
-                      className="mb-3"
-                      style={{
-                        marginLeft: "10px",
-                        marginTop: "10px",
-                      }}
-                    >
-                      Lieferbar
-                    </Badge>
-                    <div
-                      className="form-check mx-3"
-                      style={{ marginBottom: "10px" }}
-                    >
-                      <input
-                        type="checkbox"
-                        name="lieferbar"
-                        className="form-check-input"
-                        checked={formData.lieferbar}
-                        onChange={handleChange}
-                        id="lieferbarCheckbox"
-                      />
-                      <label
-                        htmlFor="lieferbarCheckbox"
-                        className="form-check-label"
-                        style={{ color: "black" }}
-                      >
-                        Lieferbar
-                      </label>
-                    </div>
-                  </div>
+  <div
+    className="mb-4 border-dashed rounded"
+    style={{
+      display: "inline-block",
+      width: "100%",
+    }}
+  >
+    <Badge
+      className="mb-3"
+      style={{
+        marginLeft: "10px",
+        marginTop: "10px",
+      }}
+    >
+      Lieferbar
+    </Badge>
+    <div
+      className="form-check mx-3"
+      style={{ marginBottom: "10px" }}
+    >
+      <input
+        type="checkbox"
+        name="lieferbar"
+        className="form-check-input"
+        checked={formData.lieferbar}
+        onChange={handleChange}
+        id="lieferbarCheckbox"
+      />
+      <label
+        htmlFor="lieferbarCheckbox"
+        className="form-check-label"
+        style={{ color: "black" }}
+      >
+        Lieferbar
+      </label>
+    </div>
+  </div>
 
-                  <div
-                    className="mb-4 border-dashed rounded"
-                    style={{
-                      display: "inline-block",
-                      width: "100%",
-                      paddingLeft: "5px",
-                      paddingRight: "5px",
-                      paddingBottom: "5px",
-                    }}
-                  >
-                    <Badge
-                      className="mb-3"
-                      style={{ marginTop: "5px", marginLeft: "5px" }}
-                    >
-                      Datum
-                    </Badge>
-                    <input
-                      type="date"
-                      name="datum"
-                      className="form-control"
-                      value={formData.datum}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          datum: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
+  <div
+    className="mb-4 border-dashed rounded"
+    style={{
+      display: "inline-block",
+      width: "100%",
+      paddingLeft: "5px",
+      paddingRight: "5px",
+      paddingBottom: "5px",
+      position: "relative",
+    }}
+  >
+    <Badge
+      className="mb-3"
+      style={{ marginTop: "5px", marginLeft: "5px" }}
+    >
+      Datum
+    </Badge>
+    <input
+      type="date"
+      name="datum"
+      className="form-control"
+      value={formData.datum}
+      onChange={(e) =>
+        setFormData({
+          ...formData,
+          datum: e.target.value,
+        })
+      }
+      style={{ paddingRight: "30px" }}
+    />
+    <FaCalendarAlt
+      style={{
+        color: "#0d6efd",
+        cursor: "pointer",
+        position: "absolute",
+        right: "15px",
+        top: "50%",
+        transform: "translateY(+60%)",
+      }}
+      onClick={() => {
+        const dateInput = document.querySelector(
+          'input[name="datum"]'
+        ) as HTMLInputElement;
+        if (dateInput) {
+          dateInput.showPicker?.();
+          dateInput.focus();
+        }
+      }}
+    />
+  </div>
+</div>
+
               </div>
 
               {errorMessage && (

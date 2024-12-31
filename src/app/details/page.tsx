@@ -6,14 +6,8 @@ import { Alert, Spinner, Container, Badge } from "react-bootstrap";
 import { format } from "date-fns";
 import _ from "lodash";
 import { api } from "../config";
-
-const formatPrice = (preis: number) => {
-  const formatter = new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-  });
-  return formatter.format(preis);
-};
+import formatPrice from "../utils/priceFormatter";
+import renderStars from "../utils/stars";
 
 const formatDate = (dateString: string) => {
   try {
@@ -21,25 +15,6 @@ const formatDate = (dateString: string) => {
   } catch {
     return "Ungültiges Datum";
   }
-};
-
-const renderStars = (rating: string) => {
-  const ratingValue = parseFloat(rating);
-  const fullStars = Math.floor(ratingValue);
-  const hasHalfStar = ratingValue % 1 !== 0;
-
-  const stars = [];
-  for (let i = 0; i < 5; i++) {
-    if (i < fullStars) {
-      stars.push("★");
-    } else if (i === fullStars && hasHalfStar) {
-      stars.push("☆");
-    } else {
-      stars.push("☆");
-    }
-  }
-
-  return stars.join(" ");
 };
 
 const formatRabatt = (rabatt: number) => `${_.round(rabatt, 2)}%`;
