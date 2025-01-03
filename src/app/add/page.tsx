@@ -245,6 +245,8 @@ const BookForm = () => {
                       value={formData.rabatt}
                       onChange={handleChange}
                       min={0}
+                      max={1}
+                      step={0.01}
                     />
                   </div>
                 </div>
