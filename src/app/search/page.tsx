@@ -220,7 +220,7 @@ const BookSearchPage = () => {
             />
             <Form.Check
               type="checkbox"
-              label={<label htmlFor="python-checkbox">Python</label>}
+              label={<label htmlFor="Python-checkbox">Python</label>}
               id="Python-checkbox"
               checked={istPython}
               onChange={(e) => setIstPython(e.target.checked)}
