@@ -6,9 +6,7 @@ import { Alert, Badge, Button } from "react-bootstrap";
 import axios from "axios";
 import { useAuth } from "../api/auth/useAuth";
 import RouteGuard from "../api/auth/routeGuard";
-import {api} from "../config";
-
-
+import { api } from "../config";
 
 const ADD_BOOK_MUTATION = `
   mutation createBook($input: BuchInput!) {
@@ -16,7 +14,6 @@ const ADD_BOOK_MUTATION = `
     id
   }
 }
-
 `;
 
 const BookForm = () => {
@@ -32,14 +29,43 @@ const BookForm = () => {
     homepage: "",
     datum: "",
     art: "HARDCOVER",
-    rating: 1, 
+    rating: 1,
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { token } = useAuth();
 
+  const validateField = (name: string, value: string | number) => {
+    if (!value) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "Bitte füllen Sie dieses Feld aus",
+      }));
+    } else {
+      setErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        delete updatedErrors[name];
+        return updatedErrors;
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: { [key: string]: string } = {};
+
+    Object.keys(formData).forEach((key) => {
+      if (!formData[key as keyof typeof formData]) {
+        newErrors[key] = "Bitte füllen Sie dieses Feld aus";
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setLoading(true);
     setErrorMessage("");
 
@@ -47,7 +73,6 @@ const BookForm = () => {
 
     const input = {
       ...rest,
-
       titel: {
         titel: titel,
         untertitel: untertitel || "",
@@ -102,7 +127,7 @@ const BookForm = () => {
     const { name, value, type } = e.target;
 
     if (type === "checkbox") {
-      const target = e.target as HTMLInputElement; 
+      const target = e.target as HTMLInputElement;
       setFormData({
         ...formData,
         [name]: target.checked,
@@ -146,8 +171,10 @@ const BookForm = () => {
                   placeholder="ISBN"
                   value={formData.isbn}
                   onChange={handleChange}
+                  onBlur={(e) => validateField(e.target.name, e.target.value)}
                   required
                 />
+                {errors.isbn && <span className="text-danger">{errors.isbn}</span>}
               </div>
 
               <div className="mb-4">
@@ -159,8 +186,10 @@ const BookForm = () => {
                   placeholder="Titel"
                   value={formData.titel}
                   onChange={handleChange}
+                  onBlur={(e) => validateField(e.target.name, e.target.value)}
                   required
                 />
+                {errors.titel && <span className="text-danger">{errors.titel}</span>}
               </div>
 
               <div className="mb-4">
@@ -173,6 +202,9 @@ const BookForm = () => {
                   value={formData.untertitel}
                   onChange={handleChange}
                 />
+                {errors.untertitel && (
+                  <span className="text-danger">{errors.untertitel}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -185,6 +217,9 @@ const BookForm = () => {
                   value={formData.schlagwoerter}
                   onChange={handleChange}
                 />
+                {errors.schlagwoerter && (
+                  <span className="text-danger">{errors.schlagwoerter}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -197,6 +232,9 @@ const BookForm = () => {
                   value={formData.homepage}
                   onChange={handleChange}
                 />
+                {errors.homepage && (
+                  <span className="text-danger">{errors.homepage}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -206,11 +244,13 @@ const BookForm = () => {
                   className="form-control"
                   value={formData.art}
                   onChange={handleChange}
+                  onBlur={(e) => validateField(e.target.name, e.target.value)}
                 >
                   <option value="HARDCOVER">HARDCOVER</option>
                   <option value="PAPERBACK">PAPERBACK</option>
                   <option value="EBOOK">EBOOK</option>
                 </select>
+                {errors.art && <span className="text-danger">{errors.art}</span>}
               </div>
 
               <div
@@ -230,9 +270,11 @@ const BookForm = () => {
                       placeholder="Preis"
                       value={formData.preis}
                       onChange={handleChange}
+                      onBlur={(e) => validateField(e.target.name, e.target.value)}
                       min={0}
                       required
                     />
+                    {errors.preis && <span className="text-danger">{errors.preis}</span>}
                   </div>
 
                   <div className="mb-4">
@@ -248,6 +290,9 @@ const BookForm = () => {
                       max={1}
                       step={0.01}
                     />
+                    {errors.rabatt && (
+                      <span className="text-danger">{errors.rabatt}</span>
+                    )}
                   </div>
                 </div>
 
@@ -317,7 +362,9 @@ const BookForm = () => {
                           datum: e.target.value,
                         })
                       }
+                      onBlur={(e) => validateField(e.target.name, e.target.value)}
                     />
+                    {errors.datum && <span className="text-danger">{errors.datum}</span>}
                   </div>
                 </div>
               </div>
