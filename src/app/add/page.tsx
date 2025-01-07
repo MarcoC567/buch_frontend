@@ -267,7 +267,7 @@ const BookForm = () => {
                   width: "100%",
                 }}
               >
-                <div style={{ width: "50%", marginRight:"2%" }}>
+                <div style={{ width: "50%", marginRight: "2%" }}>
                   <div className="mb-4">
                     <Badge className="mb-3">Preis</Badge>
                     <input
@@ -312,7 +312,7 @@ const BookForm = () => {
                     className="mb-4 border-dashed rounded"
                     style={{
                       display: "inline-block",
-                      width: "95%"
+                      width: "95%",
                     }}
                   >
                     <Badge
@@ -396,40 +396,6 @@ const BookForm = () => {
                       }}
                     />
                   </div>
-                </div>
-
-                <div
-                  className="mb-4 border-dashed rounded"
-                  style={{
-                    display: "inline-block",
-                    width: "100%",
-                    paddingLeft: "5px",
-                    paddingRight: "5px",
-                    paddingBottom: "5px",
-                  }}
-                >
-                  <Badge
-                    className="mb-3"
-                    style={{ marginTop: "5px", marginLeft: "5px" }}
-                  >
-                    Datum
-                  </Badge>
-                  <input
-                    type="date"
-                    name="datum"
-                    className="form-control"
-                    value={formData.datum}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        datum: e.target.value,
-                      })
-                    }
-                    onBlur={(e) => validateField(e.target.name, e.target.value)}
-                  />
-                  {errors.datum && (
-                    <span className="text-danger">{errors.datum}</span>
-                  )}
                 </div>
               </div>
 

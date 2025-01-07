@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {api} from "./config";
+import { api } from "./config";
 import formatPrice from "../app/utils/priceFormatter";
 
 interface CardData {
@@ -15,7 +15,7 @@ interface CardData {
 }
 
 interface BuchResponse {
-  id: string,
+  id: string;
   preis: number;
   art: string;
   rating?: string;
@@ -31,7 +31,7 @@ const Homepage: React.FC = () => {
   const router = useRouter();
 
   const moveToDetails = (id: string) => {
-    if(!id){
+    if (!id) {
       console.error("ID is missing");
     }
     router.push(`/details?id=${id}`); // Navigiere zur Detail-Seite für das spezifische Buch
@@ -40,7 +40,6 @@ const Homepage: React.FC = () => {
   // Fetch data from the backend
   const fetchCards = async () => {
     try {
-
       const response = await axios.post(
         `${api}/graphql`,
         {
@@ -74,7 +73,7 @@ const Homepage: React.FC = () => {
           art: buch.art,
         })
       );
-      
+
       setCards(fetchedCards);
       setVisibleCards(fetchedCards.slice(0, 3));
     } catch (error) {
@@ -86,35 +85,32 @@ const Homepage: React.FC = () => {
     fetchCards();
   }, []);
 
-  
   const renderStars = (rating: string) => {
     const ratingValue = parseFloat(rating);
     const fullStars = Math.floor(ratingValue);
     const hasHalfStar = ratingValue % 1 !== 0;
 
-   
     const stars = [];
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push("★"); 
+        stars.push("★");
       } else if (i === fullStars && hasHalfStar) {
-        stars.push("☆"); 
+        stars.push("☆");
       } else {
-        stars.push("☆"); 
+        stars.push("☆");
       }
     }
 
-    return stars.join(" "); 
+    return stars.join(" ");
   };
 
-  
   const moveNext = useCallback(() => {
     if (cards.length < 4) return;
 
     const nextIndex = (currentIndex + 1) % cards.length;
     const newVisibleCards = [
-      ...visibleCards.slice(1), 
-      cards[(currentIndex + 3) % cards.length], 
+      ...visibleCards.slice(1),
+      cards[(currentIndex + 3) % cards.length],
     ];
 
     setCurrentIndex(nextIndex);
@@ -126,7 +122,7 @@ const Homepage: React.FC = () => {
 
     const previousIndex = (currentIndex - 1 + cards.length) % cards.length;
     const newVisibleCards = [
-      cards[(previousIndex - 1 + cards.length) % cards.length], 
+      cards[(previousIndex - 1 + cards.length) % cards.length],
       ...visibleCards.slice(0, 2),
     ];
 
@@ -210,18 +206,19 @@ const Homepage: React.FC = () => {
                     flexDirection: "column",
                     justifyContent: "center",
                     alignItems: "center",
-                    width: "100%", 
-                    marginBottom: "20px"
+                    width: "100%",
+                    marginBottom: "20px",
                   }}
                 >
                   <p style={{ margin: "5px 0" }}>
-                    <strong>Preis:</strong> {card.preis !== undefined
-                                  ? formatPrice(
-                                      typeof card.preis === "string"
-                                        ? parseFloat(card.preis)
-                                        : card.preis
-                                    )
-                                  : "Preis nicht verfügbar"} 
+                    <strong>Preis:</strong>{" "}
+                    {card.preis !== undefined
+                      ? formatPrice(
+                          typeof card.preis === "string"
+                            ? parseFloat(card.preis)
+                            : card.preis
+                        )
+                      : "Preis nicht verfügbar"}
                   </p>
                   <p style={{ margin: "5px 0" }}>
                     <strong>Art:</strong> {card.art}
@@ -230,7 +227,10 @@ const Homepage: React.FC = () => {
                     <strong>Bewertung:</strong> {renderStars(card.rating)}
                   </p>
                 </div>
-                <a  className="btn btn-primary my-3" onClick={() => moveToDetails(card.id)}>
+                <a
+                  className="btn btn-primary my-3"
+                  onClick={() => moveToDetails(card.id)}
+                >
                   Details
                 </a>
               </div>
@@ -238,7 +238,7 @@ const Homepage: React.FC = () => {
           ))}
         </div>
       </div>
-     
+
       <div
         style={{
           display: "flex",
