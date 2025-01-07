@@ -4,6 +4,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {api} from "./config";
+import formatPrice from "../app/utils/priceFormatter";
 
 interface CardData {
   id: string;
@@ -73,7 +74,7 @@ const Homepage: React.FC = () => {
           art: buch.art,
         })
       );
-
+      
       setCards(fetchedCards);
       setVisibleCards(fetchedCards.slice(0, 3));
     } catch (error) {
@@ -214,7 +215,13 @@ const Homepage: React.FC = () => {
                   }}
                 >
                   <p style={{ margin: "5px 0" }}>
-                    <strong>Preis:</strong> {card.preis} €
+                    <strong>Preis:</strong> {card.preis !== undefined
+                                  ? formatPrice(
+                                      typeof card.preis === "string"
+                                        ? parseFloat(card.preis)
+                                        : card.preis
+                                    )
+                                  : "Preis nicht verfügbar"} 
                   </p>
                   <p style={{ margin: "5px 0" }}>
                     <strong>Art:</strong> {card.art}
