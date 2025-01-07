@@ -175,7 +175,9 @@ const BookForm = () => {
                   onBlur={(e) => validateField(e.target.name, e.target.value)}
                   required
                 />
-                {errors.isbn && <span className="text-danger">{errors.isbn}</span>}
+                {errors.isbn && (
+                  <span className="text-danger">{errors.isbn}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -190,7 +192,9 @@ const BookForm = () => {
                   onBlur={(e) => validateField(e.target.name, e.target.value)}
                   required
                 />
-                {errors.titel && <span className="text-danger">{errors.titel}</span>}
+                {errors.titel && (
+                  <span className="text-danger">{errors.titel}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -251,7 +255,9 @@ const BookForm = () => {
                   <option value="PAPERBACK">PAPERBACK</option>
                   <option value="EBOOK">EBOOK</option>
                 </select>
-                {errors.art && <span className="text-danger">{errors.art}</span>}
+                {errors.art && (
+                  <span className="text-danger">{errors.art}</span>
+                )}
               </div>
 
               <div
@@ -261,7 +267,7 @@ const BookForm = () => {
                   width: "100%",
                 }}
               >
-                <div style={{ width: "50%" }}>
+                <div style={{ width: "50%", marginRight:"2%" }}>
                   <div className="mb-4">
                     <Badge className="mb-3">Preis</Badge>
                     <input
@@ -271,11 +277,15 @@ const BookForm = () => {
                       placeholder="Preis"
                       value={formData.preis}
                       onChange={handleChange}
-                      onBlur={(e) => validateField(e.target.name, e.target.value)}
+                      onBlur={(e) =>
+                        validateField(e.target.name, e.target.value)
+                      }
                       min={0}
                       required
                     />
-                    {errors.preis && <span className="text-danger">{errors.preis}</span>}
+                    {errors.preis && (
+                      <span className="text-danger">{errors.preis}</span>
+                    )}
                   </div>
 
                   <div className="mb-4">
@@ -298,104 +308,53 @@ const BookForm = () => {
                 </div>
 
                 <div style={{ width: "40%" }}>
-  <div
-    className="mb-4 border-dashed rounded"
-    style={{
-      display: "inline-block",
-      width: "100%",
-    }}
-  >
-    <Badge
-      className="mb-3"
-      style={{
-        marginLeft: "10px",
-        marginTop: "10px",
-      }}
-    >
-      Lieferbar
-    </Badge>
-    <div
-      className="form-check mx-3"
-      style={{ marginBottom: "10px" }}
-    >
-      <input
-        type="checkbox"
-        name="lieferbar"
-        className="form-check-input"
-        checked={formData.lieferbar}
-        onChange={handleChange}
-        id="lieferbarCheckbox"
-      />
-      <label
-        htmlFor="lieferbarCheckbox"
-        className="form-check-label"
-        style={{ color: "black" }}
-      >
-        Lieferbar
-      </label>
-    </div>
-  </div>
-
-  <div
-    className="mb-4 border-dashed rounded"
-    style={{
-      display: "inline-block",
-      width: "100%",
-      paddingLeft: "5px",
-      paddingRight: "5px",
-      paddingBottom: "5px",
-      position: "relative",
-    }}
-  >
-    <Badge
-      className="mb-3"
-      style={{ marginTop: "5px", marginLeft: "5px" }}
-    >
-      Datum
-    </Badge>
-    <input
-      type="date"
-      name="datum"
-      className="form-control"
-      value={formData.datum}
-      onChange={(e) =>
-        setFormData({
-          ...formData,
-          datum: e.target.value,
-        })
-      }
-      style={{ paddingRight: "30px" }}
-    />
-    <FaCalendarAlt
-      style={{
-        color: "#0d6efd",
-        cursor: "pointer",
-        position: "absolute",
-        right: "15px",
-        top: "50%",
-        transform: "translateY(+60%)",
-      }}
-      onClick={() => {
-        const dateInput = document.querySelector(
-          'input[name="datum"]'
-        ) as HTMLInputElement;
-        if (dateInput) {
-          dateInput.showPicker?.();
-          dateInput.focus();
-        }
-      }}
-    />
-  </div>
-</div>
+                  <div
+                    className="mb-4 border-dashed rounded"
+                    style={{
+                      display: "inline-block",
+                      width: "95%"
+                    }}
+                  >
+                    <Badge
+                      className="mb-3"
+                      style={{
+                        marginLeft: "10px",
+                        marginTop: "10px",
+                      }}
+                    >
+                      Lieferbar
+                    </Badge>
+                    <div
+                      className="form-check mx-3"
+                      style={{ marginBottom: "10px" }}
+                    >
+                      <input
+                        type="checkbox"
+                        name="lieferbar"
+                        className="form-check-input"
+                        checked={formData.lieferbar}
+                        onChange={handleChange}
+                        id="lieferbarCheckbox"
+                      />
+                      <label
+                        htmlFor="lieferbarCheckbox"
+                        className="form-check-label"
+                        style={{ color: "black" }}
+                      >
+                        Lieferbar
+                      </label>
+                    </div>
+                  </div>
 
                   <div
                     className="mb-4 border-dashed rounded"
                     style={{
                       display: "inline-block",
-                      width: "100%",
+                      width: "95%",
                       paddingLeft: "5px",
                       paddingRight: "5px",
                       paddingBottom: "5px",
+                      position: "relative",
                     }}
                   >
                     <Badge
@@ -415,10 +374,62 @@ const BookForm = () => {
                           datum: e.target.value,
                         })
                       }
-                      onBlur={(e) => validateField(e.target.name, e.target.value)}
+                      style={{ paddingRight: "30px" }}
                     />
-                    {errors.datum && <span className="text-danger">{errors.datum}</span>}
+                    <FaCalendarAlt
+                      style={{
+                        color: "#0d6efd",
+                        cursor: "pointer",
+                        position: "absolute",
+                        right: "15px",
+                        top: "50%",
+                        transform: "translateY(+60%)",
+                      }}
+                      onClick={() => {
+                        const dateInput = document.querySelector(
+                          'input[name="datum"]'
+                        ) as HTMLInputElement;
+                        if (dateInput) {
+                          dateInput.showPicker?.();
+                          dateInput.focus();
+                        }
+                      }}
+                    />
                   </div>
+                </div>
+
+                <div
+                  className="mb-4 border-dashed rounded"
+                  style={{
+                    display: "inline-block",
+                    width: "100%",
+                    paddingLeft: "5px",
+                    paddingRight: "5px",
+                    paddingBottom: "5px",
+                  }}
+                >
+                  <Badge
+                    className="mb-3"
+                    style={{ marginTop: "5px", marginLeft: "5px" }}
+                  >
+                    Datum
+                  </Badge>
+                  <input
+                    type="date"
+                    name="datum"
+                    className="form-control"
+                    value={formData.datum}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        datum: e.target.value,
+                      })
+                    }
+                    onBlur={(e) => validateField(e.target.name, e.target.value)}
+                  />
+                  {errors.datum && (
+                    <span className="text-danger">{errors.datum}</span>
+                  )}
                 </div>
               </div>
 
