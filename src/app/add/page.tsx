@@ -15,7 +15,6 @@ const ADD_BOOK_MUTATION = `
     id
   }
 }
-
 `;
 
 const BookForm = () => {
@@ -33,12 +32,41 @@ const BookForm = () => {
     art: "HARDCOVER",
     rating: 1,
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { token } = useAuth();
 
+  const validateField = (name: string, value: string | number) => {
+    if (!value) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "Bitte füllen Sie dieses Feld aus",
+      }));
+    } else {
+      setErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        delete updatedErrors[name];
+        return updatedErrors;
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: { [key: string]: string } = {};
+
+    Object.keys(formData).forEach((key) => {
+      if (!formData[key as keyof typeof formData]) {
+        newErrors[key] = "Bitte füllen Sie dieses Feld aus";
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setLoading(true);
     setErrorMessage("");
 
@@ -46,7 +74,6 @@ const BookForm = () => {
 
     const input = {
       ...rest,
-
       titel: {
         titel: titel,
         untertitel: untertitel || "",
@@ -145,8 +172,10 @@ const BookForm = () => {
                   placeholder="ISBN"
                   value={formData.isbn}
                   onChange={handleChange}
+                  onBlur={(e) => validateField(e.target.name, e.target.value)}
                   required
                 />
+                {errors.isbn && <span className="text-danger">{errors.isbn}</span>}
               </div>
 
               <div className="mb-4">
@@ -158,8 +187,10 @@ const BookForm = () => {
                   placeholder="Titel"
                   value={formData.titel}
                   onChange={handleChange}
+                  onBlur={(e) => validateField(e.target.name, e.target.value)}
                   required
                 />
+                {errors.titel && <span className="text-danger">{errors.titel}</span>}
               </div>
 
               <div className="mb-4">
@@ -172,6 +203,9 @@ const BookForm = () => {
                   value={formData.untertitel}
                   onChange={handleChange}
                 />
+                {errors.untertitel && (
+                  <span className="text-danger">{errors.untertitel}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -184,6 +218,9 @@ const BookForm = () => {
                   value={formData.schlagwoerter}
                   onChange={handleChange}
                 />
+                {errors.schlagwoerter && (
+                  <span className="text-danger">{errors.schlagwoerter}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -196,6 +233,9 @@ const BookForm = () => {
                   value={formData.homepage}
                   onChange={handleChange}
                 />
+                {errors.homepage && (
+                  <span className="text-danger">{errors.homepage}</span>
+                )}
               </div>
 
               <div className="mb-4">
@@ -205,11 +245,13 @@ const BookForm = () => {
                   className="form-control"
                   value={formData.art}
                   onChange={handleChange}
+                  onBlur={(e) => validateField(e.target.name, e.target.value)}
                 >
                   <option value="HARDCOVER">HARDCOVER</option>
                   <option value="PAPERBACK">PAPERBACK</option>
                   <option value="EBOOK">EBOOK</option>
                 </select>
+                {errors.art && <span className="text-danger">{errors.art}</span>}
               </div>
 
               <div
@@ -229,9 +271,11 @@ const BookForm = () => {
                       placeholder="Preis"
                       value={formData.preis}
                       onChange={handleChange}
+                      onBlur={(e) => validateField(e.target.name, e.target.value)}
                       min={0}
                       required
                     />
+                    {errors.preis && <span className="text-danger">{errors.preis}</span>}
                   </div>
 
                   <div className="mb-4">
@@ -244,7 +288,12 @@ const BookForm = () => {
                       value={formData.rabatt}
                       onChange={handleChange}
                       min={0}
+                      max={1}
+                      step={0.01}
                     />
+                    {errors.rabatt && (
+                      <span className="text-danger">{errors.rabatt}</span>
+                    )}
                   </div>
                 </div>
 
@@ -339,6 +388,38 @@ const BookForm = () => {
   </div>
 </div>
 
+                  <div
+                    className="mb-4 border-dashed rounded"
+                    style={{
+                      display: "inline-block",
+                      width: "100%",
+                      paddingLeft: "5px",
+                      paddingRight: "5px",
+                      paddingBottom: "5px",
+                    }}
+                  >
+                    <Badge
+                      className="mb-3"
+                      style={{ marginTop: "5px", marginLeft: "5px" }}
+                    >
+                      Datum
+                    </Badge>
+                    <input
+                      type="date"
+                      name="datum"
+                      className="form-control"
+                      value={formData.datum}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          datum: e.target.value,
+                        })
+                      }
+                      onBlur={(e) => validateField(e.target.name, e.target.value)}
+                    />
+                    {errors.datum && <span className="text-danger">{errors.datum}</span>}
+                  </div>
+                </div>
               </div>
 
               {errorMessage && (
