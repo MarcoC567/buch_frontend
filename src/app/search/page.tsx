@@ -231,7 +231,7 @@ const BookSearchPage = () => {
           <Badge>Buchformat</Badge>
           <div style={{ fontSize: "0.9rem", marginTop: "5px" }}>
             <Form.Check
-              type="checkbox"
+              type="radio"
               name="bookFormat"
               label={<label htmlFor="epub-format">EPUB</label>}
               value="EPUB"
@@ -240,7 +240,7 @@ const BookSearchPage = () => {
               onChange={(e) => setSucheBuchArt(e.target.value)}
             />
             <Form.Check
-              type="checkbox"
+              type="radio"
               name="bookFormat"
               label={<label htmlFor="hardcover-format">Hardcover</label>}
               value="HARDCOVER"
@@ -249,7 +249,7 @@ const BookSearchPage = () => {
               onChange={(e) => setSucheBuchArt(e.target.value)}
             />
             <Form.Check
-              type="checkbox"
+              type="radio"
               name="bookFormat"
               label={<label htmlFor="paperback-format">Paperback</label>}
               value="PAPERBACK"
