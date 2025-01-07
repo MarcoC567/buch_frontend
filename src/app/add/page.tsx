@@ -38,7 +38,7 @@ const BookForm = () => {
   const { token } = useAuth();
 
   const validateField = (name: string, value: string | number) => {
-    if (!value) {
+    if (name !== "homepage" && !value) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         [name]: "Bitte füllen Sie dieses Feld aus",
@@ -54,18 +54,6 @@ const BookForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { [key: string]: string } = {};
-
-    Object.keys(formData).forEach((key) => {
-      if (!formData[key as keyof typeof formData]) {
-        newErrors[key] = "Bitte füllen Sie dieses Feld aus";
-      }
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
 
     setLoading(true);
     setErrorMessage("");
@@ -83,6 +71,7 @@ const BookForm = () => {
         .map((tag) => tag.trim())
         .filter((tag) => tag !== ""),
       art: rest.art || "HARDCOVER",
+      homepage: rest.homepage || null,
     };
 
     console.log("GraphQL Input:", input);
@@ -281,6 +270,7 @@ const BookForm = () => {
                         validateField(e.target.name, e.target.value)
                       }
                       min={0}
+                      step={0.01}
                       required
                     />
                     {errors.preis && (
