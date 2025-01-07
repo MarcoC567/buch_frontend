@@ -7,34 +7,40 @@ skinparam state {
 }
 
 state App {
-[*] --> HomePage : Start
+    [*] --> HomePage : Start
 
-HomePage --> LoginSite : "Login"
-HomePage --> Suchen : "Suchen"
-HomePage --> Details : "Anzeigen"
+    HomePage --> LoginSite : "Login"
+    HomePage --> Suchen : "Suchen"
+    HomePage --> Details : "Details anzeigen"
 
-state LoginSite {
-    [*] --> AnmeldeFormular : "Login-Eingabe"
-    state entscheidung <<choice>>
-    AnmeldeFormular --> entscheidung :"einloggen"
-    entscheidung --> AnmeldeFormular : "Login fehlgeschlagen"
-    entscheidung --> Angemeldet : "Login efolgreich"
+    state LoginSite {
+        [*] --> AnmeldeFormular : "Login-Eingabe"
+        state entscheidung <<choice>>
+        AnmeldeFormular --> entscheidung : "einloggen"
+        entscheidung --> AnmeldeFormular : "Login fehlgeschlagen"
+        entscheidung --> Angemeldet : "Login erfolgreich"
+    }
+
+    Angemeldet --> BuchAnlegen : "Hinzufügen"
+    BuchAnlegen --> HomePage : "erfolgreich angelegt"
+    Angemeldet --> Suchen : "Suchen"
+
+    state Suchen {
+        [*] --> Suchformular : "Suchkriterien eingeben"
+        state bedingung <<choice>>
+        Suchformular --> Ergebnisse : "Suchen"
+        Ergebnisse --> bedingung : "Bearbeiten auswählen"
+        Ergebnisse --> bedingung : "Löschen auswählen"
+        Ergebnisse --> Details : "Details auswählen"
+
+        bedingung --> Bearbeiten : "Angemeldet"
+        bedingung --> Löschen : "Angemeldet"
+        bedingung --> Ergebnisse : "Nicht Angemeldet"
+    }
+
+    Details --> HomePage : "Zurück zur Übersicht"
+    Details --> Bearbeiten : "Bearbeiten starten [wenn angemeldet]"
+    Details --> Löschen : "Löschen bestätigen [wenn angemeldet]"
 }
 
-Angemeldet --> BuchAnlegen : "Hinzufügen"
-BuchAnlegen --> HomePage : "erfolgreich angelegt"
-Angemeldet --> Suchen : "Suchen"
-
-state Suchen {
-    [*] --> Suchformular : "Suchkriterien"
-    state bedingung <<choice>>
-    Suchformular --> Ergebnisse : "Suchen"
-    Ergebnisse --> bedingung : "Bearbeiten auswählen"
-    Ergebnisse --> bedingung : "Löschen auswählen"
-    bedingung --> Ergebnisse : "Nicht Angemeldet"
-}
-bedingung --> Bearbeiten : "Angemeldet"
-bedingung --> Löschen : "Angemeldet"
-Ergebnisse --> Details : "Details auswählen"
-}
 @enduml
