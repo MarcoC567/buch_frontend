@@ -1,8 +1,8 @@
-"use client";
-import { createContext, useState, useEffect, ReactNode } from "react";
-import PropTypes from "prop-types";
-import axios from "axios";
-import https from "https";
+'use client';
+import axios from 'axios';
+import https from 'https';
+import PropTypes from 'prop-types';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 
 interface AuthContextType {
   token: string | null;
@@ -13,7 +13,7 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface AuthProviderProps {
@@ -25,8 +25,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [writeAccess, setWriteAccess] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedToken = localStorage.getItem("token");
+    if (typeof window !== 'undefined') {
+      const savedToken = localStorage.getItem('token');
       if (savedToken) {
         setToken(savedToken);
         checkWriteAccess(savedToken);
@@ -37,22 +37,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const checkWriteAccess = (token: string) => {
     try {
       console.log(token);
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const roles = payload?.resource_access?.["nest-client"]?.roles || [];
-      if (roles.includes("admin")) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const roles = payload?.resource_access?.['nest-client']?.roles || [];
+      if (roles.includes('admin')) {
         setWriteAccess(true);
       } else {
         setWriteAccess(false);
       }
     } catch (error) {
-      console.error("Error decoding token or setting write access:", error);
+      console.error('Error decoding token or setting write access:', error);
       setWriteAccess(false);
     }
   };
-  console.log("WriteAccess: ", writeAccess);
+
   const login = async (
     username: string,
-    password: string
+    password: string,
   ): Promise<boolean> => {
     try {
       const response = await loginUser({ username, password });
@@ -60,8 +60,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setToken(access_token);
       console.log(response);
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", access_token);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', access_token);
         console.log(access_token);
       }
 
@@ -69,8 +69,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       return true;
     } catch (error) {
       console.error(
-        "Error beim setzen des Write Access oder beim decodieren des Tokens",
-        error
+        'Error beim setzen des Write Access oder beim decodieren des Tokens',
+        error,
       );
       return false;
     }
@@ -82,9 +82,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     username: string;
     password: string;
   }) => {
-    const url = "https://localhost:3000/auth/token";
+    const url = 'https://localhost:3000/auth/token';
     const requestData = `username=${encodeURIComponent(
-      username
+      username,
     )}&password=${encodeURIComponent(password)}`;
 
     const agent = new https.Agent({
@@ -95,30 +95,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await axios.post(url, requestData, {
         httpsAgent: agent,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
       if (response.status === 200) {
         return response;
       } else {
-        throw new Error("Login failed");
+        throw new Error('Login failed');
       }
     } catch (error) {
-      console.error("Login Request failed", error);
-      throw new Error("Login failed");
+      console.error('Login Request failed', error);
+      throw new Error('Login failed');
     }
   };
 
   const logout = () => {
     setToken(null);
     setWriteAccess(false);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
     }
   };
 
   const isLoggedIn = () => {
-    return token !== null && token !== "";
+    return token !== null && token !== '';
   };
 
   return (
