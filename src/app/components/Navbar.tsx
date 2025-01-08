@@ -58,7 +58,10 @@ const Navbar = () => {
           className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`}
           id="navbarSupportedContent"
         >
-          <ul className="nav nav-pills me-auto mb-2 mb-lg-0" style={{right:"px"}}>
+          <ul
+            className="nav nav-pills me-auto mb-2 mb-lg-0"
+            style={{ right: "px" }}
+          >
             <li className="nav-item">
               <Link
                 className={`nav-link ${

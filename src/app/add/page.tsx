@@ -270,7 +270,7 @@ const BookForm = () => {
                         validateField(e.target.name, e.target.value)
                       }
                       min={0}
-                      step={0.01}
+                      step={0.1}
                       required
                     />
                     {errors.preis && (
